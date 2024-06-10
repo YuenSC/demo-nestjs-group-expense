@@ -1,9 +1,16 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -12,13 +19,26 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { password, retypedPassword, ...rest } = createUserDto;
+
+    if (password !== retypedPassword) {
+      throw new BadRequestException(
+        'Password and retyped password do not match',
+      );
+    }
+
     try {
-      return await this.userRepository.save({ ...createUserDto });
+      return await this.userRepository.save({
+        ...rest,
+        password: await this.authService.hashPassword(password),
+      });
     } catch (error) {
-      this.logger.error(error.message);
+      // this.logger.error(error.message);
       if (error.code === 'ER_DUP_ENTRY') {
         throw new BadRequestException('User already exists');
       }
@@ -34,8 +54,16 @@ export class UsersService {
     return await this.userRepository.findOneBy({ id });
   }
 
+  async findOneByEmail(email: string) {
+    return await this.userRepository.findOneBy({ email });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     return await this.userRepository.update(id, updateUserDto);
+  }
+
+  updateLastLogin(id: string) {
+    return this.userRepository.update(id, { lastLoginAt: new Date() });
   }
 
   async remove(id: string) {

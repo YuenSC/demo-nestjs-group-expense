@@ -3,9 +3,6 @@ import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
   @Length(2)
-  username: string;
-
-  @Length(2)
   firstName: string;
 
   @Length(2)

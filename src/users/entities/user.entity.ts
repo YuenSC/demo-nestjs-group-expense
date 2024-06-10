@@ -12,11 +12,6 @@ export enum UserRole {
 export class User extends BaseEntity {
   @Column()
   @Expose()
-  @Length(3, 20)
-  username: string;
-
-  @Column()
-  @Expose()
   @Length(2)
   firstName: string;
 
