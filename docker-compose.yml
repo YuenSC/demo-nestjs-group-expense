@@ -1,4 +1,19 @@
 services:
+  nest-dev:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    env_file:
+      - .env.development
+    command: npm run start:dev
   mysql:
     platform: linux/amd64
     image: mysql:8.0.23
