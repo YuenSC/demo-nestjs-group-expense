@@ -7,15 +7,14 @@ import databaseConfig from './config/database.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import authJwtConfig from './config/auth-jwt.config';
+import envFilePath from './config/envFilePath';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, authJwtConfig],
-      envFilePath: !process.env.NODE_ENV
-        ? '.env'
-        : `.env.${process.env.NODE_ENV}`,
+      envFilePath: envFilePath,
     }),
     TypeOrmModule.forRootAsync({
       useFactory: databaseConfig,

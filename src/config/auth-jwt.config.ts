@@ -5,6 +5,8 @@ export default registerAs(
   'auth-jwt-config',
   (): JwtModuleOptions => ({
     secret: process.env.AUTH_SECRET,
-    signOptions: { expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRE_IN },
+    signOptions: {
+      expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRE_IN,
+    },
   }),
 );
