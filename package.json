@@ -24,7 +24,8 @@
     "migration:run": "cross-env NODE_ENV=production npm run typeorm migration:run -- -d ./src/config/database.config.ts",
     "migration:generate": "cross-env NODE_ENV=production npm run typeorm -- -d ./src/config/database.config.ts migration:generate ./src/migrations/%npm_config_name%",
     "migration:create": "cross-env NODE_ENV=production npm run typeorm -- migration:create ./src/migrations/%npm_config_name%",
-    "migration:revert": "cross-env NODE_ENV=production npm run typeorm -- -d ./src/config/database.config.ts migration:revert"
+    "migration:revert": "cross-env NODE_ENV=production npm run typeorm -- -d ./src/config/database.config.ts migration:revert",
+    "prepare": "husky"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -66,6 +67,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.0.11",
     "jest": "^29.5.0",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
