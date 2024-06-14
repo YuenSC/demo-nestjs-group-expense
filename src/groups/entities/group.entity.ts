@@ -15,4 +15,7 @@ export class Group extends BaseEntity<Group> {
 
   @OneToMany(() => UserGroup, (userGroup) => userGroup.group)
   userGroups: UserGroup[];
+
+  @Column({ nullable: false })
+  createdBy: string;
 }

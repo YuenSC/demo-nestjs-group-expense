@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupsController } from './groups.controller';
 import { GroupsService } from './groups.service';
+import { User } from '../users/entities/user.entity';
 
 describe('GroupsController', () => {
   let controller: GroupsController;
@@ -34,9 +35,10 @@ describe('GroupsController', () => {
   describe('create', () => {
     it('should create a group', async () => {
       const dto = new CreateGroupDto();
+      const creator = { id: 'current-user-id' } as User;
       (service.create as jest.Mock).mockResolvedValue('someGroup');
-      expect(await controller.create(dto)).toBe('someGroup');
-      expect(service.create).toHaveBeenCalledWith(dto);
+      expect(await controller.create(dto, creator)).toBe('someGroup');
+      expect(service.create).toHaveBeenCalledWith(dto, creator);
     });
   });
 

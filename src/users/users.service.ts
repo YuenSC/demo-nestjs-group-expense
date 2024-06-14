@@ -53,11 +53,11 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.userRepository.findOneBy({ id });
+    return await this.userRepository.findOneByOrFail({ id });
   }
 
   async findOneByEmail(email: string) {
-    return await this.userRepository.findOneBy({ email });
+    return await this.userRepository.findOneByOrFail({ email });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

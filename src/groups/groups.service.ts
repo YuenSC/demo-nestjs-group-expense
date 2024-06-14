@@ -20,8 +20,8 @@ export class GroupsService {
     private readonly userGroupRepository: Repository<UserGroup>,
   ) {}
 
-  async create(createGroupDto: CreateGroupDto) {
-    const group = new Group(createGroupDto);
+  async create(createGroupDto: CreateGroupDto, creator: User) {
+    const group = new Group({ ...createGroupDto, createdBy: creator.id });
     return await this.groupRepository.save(group);
   }
 
@@ -30,7 +30,7 @@ export class GroupsService {
   }
 
   async findOne(id: string) {
-    return await this.groupRepository.findOneBy({ id });
+    return await this.groupRepository.findOneByOrFail({ id });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,7 +44,7 @@ export class GroupsService {
   }
 
   async update(id: string, updateGroupDto: UpdateGroupDto) {
-    const group = await this.groupRepository.findOneBy({ id });
+    const group = await this.groupRepository.findOneByOrFail({ id });
     return await this.groupRepository.save({ ...group, ...updateGroupDto });
   }
 

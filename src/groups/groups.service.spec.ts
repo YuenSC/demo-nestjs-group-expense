@@ -53,9 +53,16 @@ describe('GroupsService', () => {
         name: 'Test Group',
         description: 'Test Group Description',
       } satisfies CreateGroupDto;
-      groupRepository.save.mockResolvedValue(groupDto);
-      expect(await service.create(groupDto)).toEqual(groupDto);
-      expect(groupRepository.save).toHaveBeenCalledWith(groupDto);
+      const creator = { id: 'current-user-id' } as User;
+
+      const createdGroup = {
+        ...groupDto,
+        createdBy: creator.id,
+      };
+
+      groupRepository.save.mockResolvedValue(createdGroup);
+      expect(await service.create(groupDto, creator)).toEqual(createdGroup);
+      expect(groupRepository.save).toHaveBeenCalledWith(createdGroup);
     });
   });
 
