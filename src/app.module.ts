@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { GroupsModule } from './groups/groups.module';
 import authJwtConfig from './config/auth-jwt.config';
 import envFilePath from './config/envFilePath';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TransformInterceptor } from './transform.interceptor';
 
 @Module({
   imports: [
@@ -25,6 +27,12 @@ import envFilePath from './config/envFilePath';
     GroupsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+  ],
 })
 export class AppModule {}
