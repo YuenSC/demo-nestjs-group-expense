@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { GroupsModule } from './groups/groups.module';
 import authJwtConfig from './config/auth-jwt.config';
 import envFilePath from './config/envFilePath';
 
@@ -21,6 +22,7 @@ import envFilePath from './config/envFilePath';
     }),
     UsersModule,
     AuthModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

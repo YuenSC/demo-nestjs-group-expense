@@ -33,10 +33,12 @@ export class UsersService {
     }
 
     try {
-      return await this.userRepository.save({
+      const user = new User({
         ...rest,
         password: await this.authService.hashPassword(password),
       });
+
+      return await this.userRepository.save(user);
     } catch (error) {
       // this.logger.error(error.message);
       if (error.code === 'ER_DUP_ENTRY') {

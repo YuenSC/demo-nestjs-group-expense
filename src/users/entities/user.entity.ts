@@ -1,6 +1,7 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, IsEnum, Length } from 'class-validator';
-import { Column, Entity, Index } from 'typeorm';
+import { UserGroup } from '../../groups/entities/user-group.entity';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 
 export enum UserRole {
@@ -9,7 +10,7 @@ export enum UserRole {
 }
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends BaseEntity<User> {
   @Column()
   @Expose()
   @Length(2)
@@ -37,4 +38,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @Expose()
   lastLoginAt: Date;
+
+  @OneToMany(() => UserGroup, (userGroup) => userGroup.group)
+  userGroups: UserGroup[];
 }
