@@ -3,6 +3,11 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupsController } from './groups.controller';
 import { GroupsService } from './groups.service';
 import { User } from '../users/entities/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Group } from './entities/group.entity';
+import { UserGroup } from './entities/user-group.entity';
+import { createMockRepository } from '../../test/helpers/createMockRepository';
+import { UserGroupService } from './user-group.service';
 
 describe('GroupsController', () => {
   let controller: GroupsController;
@@ -20,6 +25,25 @@ describe('GroupsController', () => {
             addUsers: jest.fn(),
             removeUsers: jest.fn(),
           },
+        },
+        {
+          provide: UserGroupService,
+          useValue: {
+            addUsers: jest.fn(),
+            removeUsers: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Group),
+          useValue: createMockRepository(),
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: createMockRepository(),
+        },
+        {
+          provide: getRepositoryToken(UserGroup),
+          useValue: createMockRepository(),
         },
       ],
     }).compile();

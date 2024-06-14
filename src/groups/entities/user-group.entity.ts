@@ -1,12 +1,10 @@
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../users/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Group } from './group.entity';
 
 @Entity()
-export class UserGroup {
-  @PrimaryGeneratedColumn('uuid')
-  id: number;
-
+export class UserGroup extends BaseEntity<UserGroup> {
   @ManyToOne(() => User, (user) => user.userGroups)
   user: User;
 
@@ -15,4 +13,10 @@ export class UserGroup {
 
   @Column({ default: false })
   isAdmin: boolean;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  groupId: string;
 }

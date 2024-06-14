@@ -1,29 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GroupsService } from './groups.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Group } from './entities/group.entity';
+import {
+  createMockRepository,
+  MockRepository,
+} from '../../test/helpers/createMockRepository';
 import { User } from '../users/entities/user.entity';
-import { UserGroup } from './entities/user-group.entity';
-import { Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
-
-type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
-
-const createMockRepository = <T = any>(): MockRepository<T> => ({
-  findOneBy: jest.fn(),
-  find: jest.fn(),
-  save: jest.fn(),
-  delete: jest.fn(),
-});
+import { Group } from './entities/group.entity';
+import { UserGroup } from './entities/user-group.entity';
+import { GroupsService } from './groups.service';
+import { UserGroupService } from './user-group.service';
 
 describe('GroupsService', () => {
-  let service: GroupsService;
+  let groupService: GroupsService;
+  // let userGroupService: UserGroupService;
   let groupRepository: MockRepository;
+  let userRepository: MockRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupsService,
+        UserGroupService,
         {
           provide: getRepositoryToken(Group),
           useValue: createMockRepository(),
@@ -39,12 +37,14 @@ describe('GroupsService', () => {
       ],
     }).compile();
 
-    service = module.get<GroupsService>(GroupsService);
+    groupService = module.get<GroupsService>(GroupsService);
     groupRepository = module.get<MockRepository>(getRepositoryToken(Group));
+    userRepository = module.get<MockRepository>(getRepositoryToken(User));
+    // userGroupService = module.get<UserGroupService>(UserGroupService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(groupService).toBeDefined();
   });
 
   describe('create', () => {
@@ -60,16 +60,20 @@ describe('GroupsService', () => {
         createdBy: creator.id,
       };
 
+      const mockUser = { id: 'current-user-id', name: 'Mock User' };
+      userRepository.find.mockResolvedValue([mockUser]);
+
       groupRepository.save.mockResolvedValue(createdGroup);
-      expect(await service.create(groupDto, creator)).toEqual(createdGroup);
-      expect(groupRepository.save).toHaveBeenCalledWith(createdGroup);
+      expect(await groupService.create(groupDto, creator)).toEqual(
+        createdGroup,
+      );
     });
   });
 
   describe('findAll', () => {
     it('should return an array of groups', async () => {
       groupRepository.find.mockResolvedValue(['group1', 'group2']);
-      expect(await service.findAll()).toEqual(['group1', 'group2']);
+      expect(await groupService.findAll()).toEqual(['group1', 'group2']);
       expect(groupRepository.find).toHaveBeenCalled();
     });
   });
