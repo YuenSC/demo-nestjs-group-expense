@@ -3,12 +3,12 @@ import { PaginationMetaDto } from './prgination-meta.dto';
 
 export class PaginationDto<T> {
   @IsArray()
-  readonly data: T[];
+  readonly items: T[];
 
   readonly meta: PaginationMetaDto;
 
   constructor(data: T[], meta: PaginationMetaDto) {
-    this.data = data;
+    this.items = data;
     this.meta = meta;
   }
 }

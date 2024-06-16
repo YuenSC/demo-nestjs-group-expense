@@ -12,7 +12,7 @@ export class PaginationService {
       return order;
     }
 
-    order.createdAt = SortOrder.DESC;
+    order.createdAt = filter.sortOrder || SortOrder.DESC;
     return order;
   }
 
@@ -21,7 +21,7 @@ export class PaginationService {
     paginationFilterDto: PaginationFilterDto,
     where: FindOptionsWhere<T>,
   ): Promise<PaginationDto<T>> {
-    const [data, totalItemCount] = await repository.findAndCount({
+    const [items, totalItemCount] = await repository.findAndCount({
       order: this.createOrderQuery(paginationFilterDto),
       skip: (paginationFilterDto.page - 1) * (paginationFilterDto.pageSize + 1),
       take: paginationFilterDto.pageSize,
@@ -29,7 +29,7 @@ export class PaginationService {
     });
 
     return {
-      data,
+      items,
       meta: new PaginationMetaDto({
         totalItemCount,
         paginationFilterDto,

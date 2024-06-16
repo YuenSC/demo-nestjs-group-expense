@@ -81,7 +81,7 @@ describe('PaginationService', () => {
       {},
     )) as PaginationDto<any>;
 
-    expect(result.data.length).toEqual(10);
+    expect(result.items.length).toEqual(10);
     expect(result.meta.totalItemCount).toEqual(15);
     expect(result.meta.pageCount).toEqual(2);
     expect(result.meta.page).toEqual(1);
