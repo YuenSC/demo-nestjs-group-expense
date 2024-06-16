@@ -1,9 +1,10 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Group } from './group.entity';
 
 @Entity()
+@Unique(['userId', 'groupId'])
 export class UserGroup extends BaseEntity<UserGroup> {
   @ManyToOne(() => User, (user) => user.userGroups)
   user: User;

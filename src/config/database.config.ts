@@ -12,7 +12,7 @@ const config = {
   ssl: { rejectUnauthorized: false },
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  migrationsRun: true,
+  migrationsRun: !process.env.NODE_ENV,
   autoLoadEntities: true,
   synchronize: !process.env.NODE_ENV,
 } satisfies TypeOrmModuleOptions;
