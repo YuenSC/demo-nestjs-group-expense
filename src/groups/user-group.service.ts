@@ -29,6 +29,15 @@ export class UserGroupService {
     return userGroups.map((userGroup) => userGroup.user);
   }
 
+  async findRelatedGroups(userId: string) {
+    const userGroups = await this.userGroupRepository.find({
+      where: { userId },
+      relations: ['group'],
+    });
+
+    return userGroups.map((userGroup) => userGroup.group);
+  }
+
   async isUserGroupAdmin(userId: string, groupId: string) {
     const userGroup = await this.userGroupRepository.findOneBy({
       userId,

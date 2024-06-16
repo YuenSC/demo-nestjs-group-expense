@@ -6,11 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { GroupsService } from './groups.service';
@@ -31,8 +32,16 @@ export class GroupsController {
   }
 
   @Get()
-  findAll() {
-    return this.groupsService.findAll();
+  findAll(@CurrentUser() user: User) {
+    if (user.role === UserRole.ADMIN) {
+      return this.groupsService.findAll();
+    } else if (user.role === UserRole.USER) {
+      return this.userGroupService.findRelatedGroups(user.id); // Assume findRelated is a method that returns groups related to the user
+    } else {
+      throw new UnauthorizedException(
+        'You do not have permission to access this resource.',
+      );
+    }
   }
 
   @Get(':id')

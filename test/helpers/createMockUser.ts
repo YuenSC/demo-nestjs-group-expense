@@ -1,6 +1,6 @@
 import { User, UserRole } from '../../src/users/entities/user.entity';
 
-export const createMockUser = () =>
+export const createMockUser = (defaultUser?: Partial<User>) =>
   ({
     id: 'user1',
     createdAt: new Date(),
@@ -13,4 +13,5 @@ export const createMockUser = () =>
     updatedAt: new Date(),
     role: UserRole.USER,
     userGroups: [],
+    ...defaultUser,
   }) satisfies User;
