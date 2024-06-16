@@ -61,7 +61,7 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(LogAllExceptionsFilter.name);
 
   catch(exception: any, host: ArgumentsHost) {
-    this.logger.error(exception);
+    this.logger.error({ ...exception });
 
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
