@@ -33,10 +33,12 @@ export class UsersService {
     }
 
     try {
-      return await this.userRepository.save({
+      const user = new User({
         ...rest,
         password: await this.authService.hashPassword(password),
       });
+
+      return await this.userRepository.save(user);
     } catch (error) {
       // this.logger.error(error.message);
       if (error.code === 'ER_DUP_ENTRY') {
@@ -51,11 +53,11 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.userRepository.findOneBy({ id });
+    return await this.userRepository.findOneByOrFail({ id });
   }
 
   async findOneByEmail(email: string) {
-    return await this.userRepository.findOneBy({ email });
+    return await this.userRepository.findOneByOrFail({ email });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
