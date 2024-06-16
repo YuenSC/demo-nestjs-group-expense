@@ -2,24 +2,25 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
 import { AddUserDto } from './dto/add-user.dto';
-import { RemoveUserDto } from './dto/remove-user.dto';
-import { GroupsService } from './groups.service';
-import { UserGroupService } from './user-group.service';
 import { IsGroupAdminGuard } from './is-group-admin.guard';
+import { UserGroupService } from './user-group.service';
 
 @UseGuards(AuthGuardJwt)
 @Controller('groups/:groupId/users')
 export class UserGroupController {
-  constructor(
-    private readonly groupsService: GroupsService,
-    private readonly userGroupService: UserGroupService,
-  ) {}
+  constructor(private readonly userGroupService: UserGroupService) {}
+
+  @Get()
+  findUsers(@Param('groupId') groupId: string) {
+    return this.userGroupService.findUsers(groupId);
+  }
 
   @Post()
   @UseGuards(IsGroupAdminGuard)
@@ -27,12 +28,12 @@ export class UserGroupController {
     return this.userGroupService.addUsers(groupId, addUserDto);
   }
 
-  @Delete()
+  @Delete(':userId')
   @UseGuards(IsGroupAdminGuard)
   removeUsers(
     @Param('groupId') groupId: string,
-    @Body() removeUserDto: RemoveUserDto,
+    @Param('userId') userId: string,
   ) {
-    return this.userGroupService.removeUsers(groupId, removeUserDto);
+    return this.userGroupService.removeUsers(groupId, userId);
   }
 }

@@ -10,7 +10,7 @@
     "build": "npx @nestjs/cli build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npx @nestjs/cli start",
-    "start:local": "npx @nestjs/cli start --watch",
+    "start:local": "cross-env NODE_ENV=local npx @nestjs/cli start --watch",
     "start:dev": "cross-env NODE_ENV=development npx @nestjs/cli start --watch",
     "start:debug": "npx @nestjs/cli start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",

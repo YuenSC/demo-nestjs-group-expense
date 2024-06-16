@@ -21,7 +21,7 @@ export class GroupsService {
         const group = new Group({ ...createGroupDto, createdBy: creator.id });
         const createdGroup = await transactionalEntityManager.save(group);
 
-        await this.userGroupService.addUsersByEntityManager(
+        await this.userGroupService.createFirstAdminByEntityManager(
           transactionalEntityManager,
           createdGroup,
           { users: [{ id: creator.id, isAdmin: true }] },
@@ -51,5 +51,12 @@ export class GroupsService {
     }
 
     return `Group with id ${id} has been deleted`;
+  }
+
+  async resetAll() {
+    await Promise.all([
+      this.groupRepository.createQueryBuilder().delete().execute(),
+      this.userGroupService.resetAll(),
+    ]);
   }
 }

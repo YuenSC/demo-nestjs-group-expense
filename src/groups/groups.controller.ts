@@ -1,21 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { GroupsService } from './groups.service';
-import { CreateGroupDto } from './dto/create-group.dto';
-import { UpdateGroupDto } from './dto/update-group.dto';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
-import { AddUserDto } from './dto/add-user.dto';
-import { RemoveUserDto } from './dto/remove-user.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
+import { GroupsService } from './groups.service';
 import { IsGroupAdminGuard } from './is-group-admin.guard';
 import { UserGroupService } from './user-group.service';
 
@@ -42,22 +40,18 @@ export class GroupsController {
     return this.groupsService.findOne(id);
   }
 
-  @Post(':id/users')
-  @UseGuards(IsGroupAdminGuard)
-  addUsers(@Param('id') id: string, @Body() addUserDto: AddUserDto) {
-    return this.userGroupService.addUsers(id, addUserDto);
-  }
-
-  @Delete(':id/users')
-  @UseGuards(IsGroupAdminGuard)
-  removeUsers(@Param('id') id: string, @Body() removeUserDto: RemoveUserDto) {
-    return this.userGroupService.removeUsers(id, removeUserDto);
-  }
-
   @Patch(':id')
   @UseGuards(IsGroupAdminGuard)
   update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupsService.update(id, updateGroupDto);
+  }
+
+  @Delete('reset-all')
+  resetAll() {
+    if (process.env.NODE_ENV !== 'local')
+      throw new Error('This endpoint is only available in test environment');
+
+    return this.groupsService.resetAll();
   }
 
   @Delete(':id')
