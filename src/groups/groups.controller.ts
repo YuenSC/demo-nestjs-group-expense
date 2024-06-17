@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { GroupsService } from './groups.service';
 import { IsGroupAdminGuard } from './is-group-admin.guard';
 import { UserGroupService } from './user-group.service';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @UseGuards(AuthGuardJwt)
 @Controller('groups')
@@ -32,11 +34,17 @@ export class GroupsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(
+    @CurrentUser() user: User,
+    @Query() paginationFilterDto: PaginationFilterDto,
+  ) {
     if (user.role === UserRole.ADMIN) {
-      return this.groupsService.findAll();
+      return this.groupsService.findAll(paginationFilterDto);
     } else if (user.role === UserRole.USER) {
-      return this.userGroupService.findRelatedGroups(user.id); // Assume findRelated is a method that returns groups related to the user
+      return this.userGroupService.findRelatedGroups(
+        user.id,
+        paginationFilterDto,
+      ); // Assume findRelated is a method that returns groups related to the user
     } else {
       throw new UnauthorizedException(
         'You do not have permission to access this resource.',

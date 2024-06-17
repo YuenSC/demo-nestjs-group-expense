@@ -72,9 +72,18 @@ describe('GroupsService', () => {
 
   describe('findAll', () => {
     it('should return an array of groups', async () => {
-      groupRepository.find.mockResolvedValue(['group1', 'group2']);
-      expect(await groupService.findAll()).toEqual(['group1', 'group2']);
-      expect(groupRepository.find).toHaveBeenCalled();
+      const expectedUserGroups = [
+        { id: '1', name: 'group1' },
+        { id: '2', name: 'group2' },
+      ] as Group[];
+
+      jest
+        .spyOn(groupRepository, 'findAndCount')
+        .mockResolvedValueOnce([expectedUserGroups, expectedUserGroups.length]);
+
+      const { items } = await groupService.findAll({ page: 1, pageSize: 10 });
+      expect(items).toEqual(expectedUserGroups);
+      expect(groupRepository.findAndCount).toHaveBeenCalled();
     });
   });
 

@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { PaginationService } from '../pagination/pagination.service';
 import { User } from '../users/entities/user.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -8,12 +10,14 @@ import { Group } from './entities/group.entity';
 import { UserGroupService } from './user-group.service';
 
 @Injectable()
-export class GroupsService {
+export class GroupsService extends PaginationService {
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
     private readonly userGroupService: UserGroupService,
-  ) {}
+  ) {
+    super();
+  }
 
   async create(createGroupDto: CreateGroupDto, creator: User) {
     return await this.groupRepository.manager.transaction(
@@ -30,8 +34,8 @@ export class GroupsService {
       },
     );
   }
-  async findAll() {
-    return await this.groupRepository.find();
+  async findAll(paginationFilterDto: PaginationFilterDto) {
+    return await this.paginate(this.groupRepository, paginationFilterDto, {});
   }
 
   async findOne(id: string) {

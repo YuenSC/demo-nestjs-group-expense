@@ -61,7 +61,7 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(LogAllExceptionsFilter.name);
 
   catch(exception: any, host: ArgumentsHost) {
-    this.logger.error(exception);
+    this.logger.error({ ...exception });
 
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
@@ -71,7 +71,13 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = postgresErrorCodeToMessage[exception.message];
+    const postgresErrorMessage = postgresErrorCodeToMessage[exception.message];
+
+    const validationErrorMessage = Array.isArray(exception.response?.message)
+      ? exception.response.message.join(', ')
+      : exception.response?.message;
+
+    const message = postgresErrorMessage || validationErrorMessage;
 
     response.status(status).json({
       statusCode: status,

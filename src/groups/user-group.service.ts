@@ -6,9 +6,11 @@ import { User } from '../users/entities/user.entity';
 import { AddUserDto } from './dto/add-user.dto';
 import { Group } from './entities/group.entity';
 import { UserGroup } from './entities/user-group.entity';
+import { PaginationService } from '../pagination/pagination.service';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @Injectable()
-export class UserGroupService {
+export class UserGroupService extends PaginationService {
   constructor(
     @InjectRepository(UserGroup)
     private readonly userGroupRepository: Repository<UserGroup>,
@@ -18,24 +20,43 @@ export class UserGroupService {
 
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
-  ) {}
-
-  async findUsers(groupId: string) {
-    const userGroups = await this.userGroupRepository.find({
-      where: { groupId },
-      relations: ['user'],
-    });
-
-    return userGroups.map((userGroup) => userGroup.user);
+  ) {
+    super();
   }
 
-  async findRelatedGroups(userId: string) {
-    const userGroups = await this.userGroupRepository.find({
-      where: { userId },
-      relations: ['group'],
-    });
+  async findUsers(groupId: string, paginationFilterDto: PaginationFilterDto) {
+    const userGroups = await this.paginate(
+      this.userGroupRepository,
+      paginationFilterDto,
+      {
+        where: { groupId },
+        relations: ['user'],
+      },
+    );
 
-    return userGroups.map((userGroup) => userGroup.group);
+    return {
+      items: userGroups.items.map((userGroup) => userGroup.user),
+      meta: userGroups.meta,
+    };
+  }
+
+  async findRelatedGroups(
+    userId: string,
+    paginationFilterDto: PaginationFilterDto,
+  ) {
+    const { items, meta } = await this.paginate(
+      this.userGroupRepository,
+      paginationFilterDto,
+      {
+        where: { userId },
+        relations: ['group'],
+      },
+    );
+
+    return {
+      items: items.map((userGroup) => userGroup.group),
+      meta,
+    };
   }
 
   async isUserGroupAdmin(userId: string, groupId: string) {

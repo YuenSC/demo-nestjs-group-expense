@@ -11,9 +11,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
+import { PaginationService } from '../pagination/pagination.service';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends PaginationService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
@@ -21,7 +23,9 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
-  ) {}
+  ) {
+    super();
+  }
 
   async create(createUserDto: CreateUserDto) {
     const { password, retypedPassword, ...rest } = createUserDto;
@@ -48,8 +52,8 @@ export class UsersService {
     }
   }
 
-  async findAll() {
-    return await this.userRepository.find();
+  async findAll(filter: PaginationFilterDto) {
+    return await this.paginate(this.userRepository, filter, {});
   }
 
   async findOne(id: string) {
