@@ -10,6 +10,7 @@ export type MockRepository<T = any> = Partial<
 
 export const createMockRepository = <T = any>(): MockRepository<T> => ({
   findOneBy: jest.fn(),
+  findAndCount: jest.fn(),
   find: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),

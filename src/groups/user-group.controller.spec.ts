@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserGroupController } from './user-group.controller';
 import { UserGroupService } from './user-group.service';
 import { createMockUser } from '../../test/helpers/createMockUser';
+import { PaginationDto } from '../pagination/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 describe('UserGroupController', () => {
   let controller: UserGroupController;
@@ -33,11 +35,27 @@ describe('UserGroupController', () => {
   describe('findUsers', () => {
     it('should return an array of users', async () => {
       const mockUsers = [createMockUser(), createMockUser()];
-      jest
-        .spyOn(userGroupService, 'findUsers')
-        .mockImplementation(async () => mockUsers);
+      jest.spyOn(userGroupService, 'findUsers').mockImplementation(
+        async () =>
+          ({
+            items: mockUsers,
+            meta: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+              pageCount: 1,
+              page: 1,
+              pageSize: 10,
+              totalItemCount: 2,
+            },
+          }) satisfies PaginationDto<User>,
+      );
 
-      expect(await controller.findUsers('groupId')).toBe(mockUsers);
+      const { items } = await controller.findUsers('groupId', {
+        page: 1,
+        pageSize: 10,
+      });
+
+      expect(items).toBe(mockUsers);
     });
   });
 

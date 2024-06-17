@@ -7,9 +7,10 @@ import { User } from '../users/entities/user.entity';
 import { Group } from './entities/group.entity';
 import { UserGroup } from './entities/user-group.entity';
 import { UserGroupService } from './user-group.service';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 describe('UserGroupService', () => {
-  let service: UserGroupService;
+  let userGroupService: UserGroupService;
   let userGroupRepository: Repository<UserGroup>;
 
   beforeEach(async () => {
@@ -31,7 +32,7 @@ describe('UserGroupService', () => {
       ],
     }).compile();
 
-    service = module.get<UserGroupService>(UserGroupService);
+    userGroupService = module.get<UserGroupService>(UserGroupService);
     userGroupRepository = module.get<Repository<UserGroup>>(
       getRepositoryToken(UserGroup),
     );
@@ -48,8 +49,20 @@ describe('UserGroupService', () => {
         .spyOn(userGroupRepository, 'find')
         .mockResolvedValueOnce(expectedUserGroups);
 
-      const users = await service.findUsers(groupId);
-      expect(users).toEqual(
+      const paginationFilterDto = {
+        page: 1,
+        pageSize: 10,
+      } satisfies PaginationFilterDto;
+
+      jest
+        .spyOn(userGroupRepository, 'findAndCount')
+        .mockResolvedValueOnce([expectedUserGroups, expectedUserGroups.length]);
+
+      const { items } = await userGroupService.findUsers(
+        groupId,
+        paginationFilterDto,
+      );
+      expect(items).toEqual(
         expectedUserGroups.map((userGroup) => userGroup.user),
       );
     });
@@ -63,7 +76,7 @@ describe('UserGroupService', () => {
         .spyOn(userGroupRepository, 'findOneBy')
         .mockResolvedValueOnce(createMockUserGroup({ isAdmin: true }));
 
-      const isAdmin = await service.isUserGroupAdmin(userId, groupId);
+      const isAdmin = await userGroupService.isUserGroupAdmin(userId, groupId);
       expect(isAdmin).toBe(true);
     });
 
@@ -74,7 +87,7 @@ describe('UserGroupService', () => {
         .spyOn(userGroupRepository, 'findOneBy')
         .mockResolvedValueOnce(createMockUserGroup({ isAdmin: false }));
 
-      const isAdmin = await service.isUserGroupAdmin(userId, groupId);
+      const isAdmin = await userGroupService.isUserGroupAdmin(userId, groupId);
       expect(isAdmin).toBe(false);
     });
   });

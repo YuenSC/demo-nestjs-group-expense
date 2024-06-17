@@ -57,7 +57,6 @@ describe('PaginationService', () => {
         order: { name: SortOrder.ASC },
         skip: 0,
         take: 10,
-        where: {},
       });
     });
   });

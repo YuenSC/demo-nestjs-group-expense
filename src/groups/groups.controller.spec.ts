@@ -1,14 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateGroupDto } from './dto/create-group.dto';
-import { GroupsController } from './groups.controller';
-import { GroupsService } from './groups.service';
-import { User, UserRole } from '../users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { createMockGroup } from '../../test/helpers/createMockGroup';
+import { createMockRepository } from '../../test/helpers/createMockRepository';
+import { createMockUser } from '../../test/helpers/createMockUser';
+import { createMockUserGroup } from '../../test/helpers/createMockUserGroup';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { PaginationDto } from '../pagination/pagination.dto';
+import { User, UserRole } from '../users/entities/user.entity';
+import { CreateGroupDto } from './dto/create-group.dto';
 import { Group } from './entities/group.entity';
 import { UserGroup } from './entities/user-group.entity';
-import { createMockRepository } from '../../test/helpers/createMockRepository';
+import { GroupsController } from './groups.controller';
+import { GroupsService } from './groups.service';
 import { UserGroupService } from './user-group.service';
-import { createMockUser } from '../../test/helpers/createMockUser';
 
 describe('GroupsController', () => {
   let controller: GroupsController;
@@ -73,23 +77,59 @@ describe('GroupsController', () => {
   describe('findAll should return all groups for admin', () => {
     const adminUser = createMockUser({ role: UserRole.ADMIN });
     it('should return an array of groups', async () => {
-      (groupService.findAll as jest.Mock).mockResolvedValue([
-        'group1',
-        'group2',
-      ]);
-      expect(await controller.findAll(adminUser)).toEqual(['group1', 'group2']);
+      const mockGroups = [createMockGroup(), createMockGroup()];
+
+      jest.spyOn(groupService, 'findAll').mockResolvedValueOnce({
+        items: mockGroups,
+        meta: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          pageCount: 1,
+          page: 1,
+          pageSize: 10,
+          totalItemCount: 2,
+        },
+      } satisfies PaginationDto<Group>);
+
+      const paginationFilterDto = {
+        page: 1,
+        pageSize: 10,
+      } satisfies PaginationFilterDto;
+
+      const { items } = await controller.findAll(
+        adminUser,
+        paginationFilterDto,
+      );
+      expect(items).toEqual(mockGroups);
       expect(groupService.findAll).toHaveBeenCalled();
     });
   });
 
   describe('findAll should return related groups for user', () => {
     const user = createMockUser({ role: UserRole.USER });
+    const paginationFilterDto = {
+      page: 1,
+      pageSize: 10,
+    } satisfies PaginationFilterDto;
+
     it('should return an array of groups', async () => {
-      (userGroupService.findRelatedGroups as jest.Mock).mockResolvedValue([
-        'group1',
-        'group2',
-      ]);
-      expect(await controller.findAll(user)).toEqual(['group1', 'group2']);
+      const mockUserGroups = [createMockUserGroup(), createMockUserGroup()];
+
+      jest.spyOn(userGroupService, 'findRelatedGroups').mockResolvedValue({
+        items: mockUserGroups.map((userGroup) => userGroup.group),
+        meta: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          pageCount: 1,
+          page: 1,
+          pageSize: 10,
+          totalItemCount: 2,
+        },
+      } satisfies PaginationDto<Group>);
+
+      const { items } = await controller.findAll(user, paginationFilterDto);
+
+      expect(items).toEqual(mockUserGroups.map((userGroup) => userGroup.group));
       expect(userGroupService.findRelatedGroups).toHaveBeenCalled();
     });
   });
