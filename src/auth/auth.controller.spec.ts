@@ -4,10 +4,13 @@ import { AuthService } from './auth.service';
 import { AuthGuardLocal } from './auth-guard.local';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import { UsersService } from '../users/users.service';
+import { SignUpDto } from './dto/signup.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let configService: ConfigService;
+  let usersService: UsersService;
 
   beforeEach(async () => {
     const authServiceMock = {
@@ -26,11 +29,13 @@ describe('AuthController', () => {
         { provide: AuthService, useValue: authServiceMock },
         { provide: AuthGuardLocal, useValue: AuthGuardLocalMock },
         { provide: ConfigService, useValue: { get: jest.fn() } },
+        { provide: UsersService, useValue: { create: jest.fn() } },
       ],
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
     configService = module.get<ConfigService>(ConfigService);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should return user and access_token', async () => {
@@ -50,5 +55,22 @@ describe('AuthController', () => {
       generatedToken,
       expect.any(Object),
     );
+  });
+
+  it('should create a new user', async () => {
+    const signUpDto = {
+      email: '',
+      password: '',
+      firstName: '',
+      lastName: '',
+      retypedPassword: '',
+    } satisfies SignUpDto;
+
+    await authController.signUp(signUpDto);
+
+    expect(usersService.create).toHaveBeenCalledWith({
+      ...signUpDto,
+      role: 'user',
+    });
   });
 });
