@@ -12,9 +12,9 @@ const config = {
   ssl: { rejectUnauthorized: false },
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  migrationsRun: !process.env.NODE_ENV,
+  migrationsRun: !(process.env.NODE_ENV === 'local'),
   autoLoadEntities: true,
-  synchronize: !process.env.NODE_ENV,
+  synchronize: process.env.NODE_ENV === 'local',
 } satisfies TypeOrmModuleOptions;
 
 export default registerAs('database', (): TypeOrmModuleOptions => config);
