@@ -17,14 +17,8 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  @UseGuards(AuthGuardLocal)
-  @Post('login')
-  async login(
-    @CurrentUser() user,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  private async setCookieAndGenerateToken(user, response: Response) {
     const access_token = this.authService.generateAccessToken(user);
-
     response.cookie('access_token', access_token, {
       httpOnly: true,
       secure: true,
@@ -34,6 +28,16 @@ export class AuthController {
           +this.configService.get('auth-jwt-config.signOptions.expiresIn'),
       ),
     });
+    return access_token;
+  }
+
+  @UseGuards(AuthGuardLocal)
+  @Post('login')
+  async login(
+    @CurrentUser() user,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const access_token = await this.setCookieAndGenerateToken(user, response);
 
     return {
       user,
@@ -42,12 +46,21 @@ export class AuthController {
   }
 
   @Post('sign-up')
-  async signUp(@Body() signUpDto: SignUpDto) {
+  async signUp(
+    @Body() signUpDto: SignUpDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const createUserDto = {
       ...signUpDto,
       role: UserRole.USER,
     } satisfies CreateUserDto;
 
-    return await this.usersService.create(createUserDto);
+    const user = await this.usersService.create(createUserDto);
+    const access_token = await this.setCookieAndGenerateToken(user, response);
+
+    return {
+      user,
+      access_token,
+    };
   }
 }

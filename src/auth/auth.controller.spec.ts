@@ -1,15 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthGuardLocal } from './auth-guard.local';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
+import { AuthGuardLocal } from './auth-guard.local';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signup.dto';
+import { createMockUser } from '../../test/helpers/createMockUser';
 
 describe('AuthController', () => {
   let authController: AuthController;
-  let configService: ConfigService;
   let usersService: UsersService;
 
   beforeEach(async () => {
@@ -28,13 +28,15 @@ describe('AuthController', () => {
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: AuthGuardLocal, useValue: AuthGuardLocalMock },
-        { provide: ConfigService, useValue: { get: jest.fn() } },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('3600') },
+        },
         { provide: UsersService, useValue: { create: jest.fn() } },
       ],
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
-    configService = module.get<ConfigService>(ConfigService);
     usersService = module.get<UsersService>(UsersService);
   });
 
@@ -44,8 +46,6 @@ describe('AuthController', () => {
       cookie: jest.fn(),
     } as unknown as Response;
     const generatedToken = `mock_token_${user.id}`;
-
-    jest.spyOn(configService, 'get').mockReturnValue('3600');
 
     const result = await authController.login(user, response);
 
@@ -65,7 +65,13 @@ describe('AuthController', () => {
       retypedPassword: '',
     } satisfies SignUpDto;
 
-    await authController.signUp(signUpDto);
+    const response = {
+      cookie: jest.fn(),
+    } as unknown as Response;
+
+    jest.spyOn(usersService, 'create').mockResolvedValue(createMockUser());
+
+    await authController.signUp(signUpDto, response);
 
     expect(usersService.create).toHaveBeenCalledWith({
       ...signUpDto,
