@@ -1,8 +1,8 @@
-import { IsEmail, IsEnum, Length } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { IsEmail, IsEnum } from 'class-validator';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { UserGroup } from '../../groups/entities/user-group.entity';
-import { Exclude } from 'class-transformer';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -11,13 +11,8 @@ export enum UserRole {
 
 @Entity()
 export class User extends BaseEntity<User> {
-  @Column()
-  @Length(2)
-  firstName: string;
-
-  @Column()
-  @Length(2)
-  lastName: string;
+  @Column({ nullable: true })
+  name: string;
 
   @Column()
   @IsEmail()

@@ -61,8 +61,7 @@ describe('AuthController', () => {
     const signUpDto = {
       email: '',
       password: '',
-      firstName: '',
-      lastName: '',
+      name: '',
       retypedPassword: '',
     } satisfies SignUpDto;
 
