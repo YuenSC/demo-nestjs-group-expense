@@ -12,5 +12,6 @@ export const createMockUser = (defaultUser?: Partial<User>) =>
     updatedAt: new Date(),
     role: UserRole.USER,
     userGroups: [],
+    isOnboardingCompleted: false,
     ...defaultUser,
   }) satisfies User;

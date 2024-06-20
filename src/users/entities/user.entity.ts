@@ -27,6 +27,9 @@ export class User extends BaseEntity<User> {
   @IsEnum(UserRole)
   role: UserRole;
 
+  @Column({ default: false })
+  isOnboardingCompleted: boolean;
+
   @Column({ nullable: true })
   lastLoginAt: Date;
 
