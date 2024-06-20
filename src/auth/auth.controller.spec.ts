@@ -63,6 +63,7 @@ describe('AuthController', () => {
       password: '',
       name: '',
       retypedPassword: '',
+      isOnboardingCompleted: false,
     } satisfies SignUpDto;
 
     const response = {
