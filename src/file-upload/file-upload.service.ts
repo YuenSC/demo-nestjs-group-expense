@@ -16,9 +16,9 @@ export class FileUploadService {
     this.client = new S3Client(configService.getOrThrow('s3-config'));
   }
 
-  async uploadFile(file: Express.Multer.File) {
+  async uploadFile(file: Express.Multer.File, prefix?: string) {
     try {
-      const key = `${Date.now()}-${file.originalname}`;
+      const key = (prefix ?? '') + `${Date.now()}-${file.originalname}`;
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
@@ -40,7 +40,9 @@ export class FileUploadService {
     }
   }
 
-  async getPresignedSignedUrl(key: string) {
+  async getPresignedSignedUrl(key?: string) {
+    if (!key) return { url: null };
+
     try {
       const command = new GetObjectCommand({
         Bucket: this.bucketName,

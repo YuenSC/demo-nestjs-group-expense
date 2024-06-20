@@ -43,7 +43,10 @@ export class UsersService extends PaginationService {
     profilePicture?: Express.Multer.File,
   ): Promise<string> {
     if (!profilePicture) return '';
-    const { key } = await this.fileUploadService.uploadFile(profilePicture);
+    const { key } = await this.fileUploadService.uploadFile(
+      profilePicture,
+      'profile-pictures/',
+    );
     return key;
   }
 
@@ -71,6 +74,16 @@ export class UsersService extends PaginationService {
     throw new BadRequestException(error.code);
   }
 
+  private async attachSignedUrlToUser(user: User): Promise<User> {
+    const { url } = await this.fileUploadService.getPresignedSignedUrl(
+      user.imageKey,
+    );
+    return new User({
+      ...user,
+      imageUrl: url,
+    });
+  }
+
   // Public methods
   async create(
     createUserDto: CreateUserDto,
@@ -85,11 +98,25 @@ export class UsersService extends PaginationService {
   }
 
   async findAll(filter: PaginationFilterDto) {
-    return await this.paginate(this.userRepository, filter, {});
+    const { items, meta } = await this.paginate(
+      this.userRepository,
+      filter,
+      {},
+    );
+
+    const updatedItems = await Promise.all(
+      items.map((user) => this.attachSignedUrlToUser(user)),
+    );
+
+    return {
+      items: updatedItems,
+      meta,
+    };
   }
 
   async findOne(id: string) {
-    return await this.userRepository.findOneByOrFail({ id });
+    const user = await this.userRepository.findOneByOrFail({ id });
+    return await this.attachSignedUrlToUser(user);
   }
 
   async findOneByEmail(email: string) {
