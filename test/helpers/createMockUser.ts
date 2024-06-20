@@ -13,5 +13,7 @@ export const createMockUser = (defaultUser?: Partial<User>) =>
     role: UserRole.USER,
     userGroups: [],
     isOnboardingCompleted: false,
+    imageKey: 'image_key',
+    imageUrl: 'image_url',
     ...defaultUser,
   }) satisfies User;

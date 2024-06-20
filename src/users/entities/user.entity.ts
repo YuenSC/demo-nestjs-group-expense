@@ -31,6 +31,12 @@ export class User extends BaseEntity<User> {
   isOnboardingCompleted: boolean;
 
   @Column({ nullable: true })
+  @Exclude({ toPlainOnly: true })
+  imageKey: string;
+
+  imageUrl: string;
+
+  @Column({ nullable: true })
   lastLoginAt: Date;
 
   @OneToMany(() => UserGroup, (userGroup) => userGroup.group)

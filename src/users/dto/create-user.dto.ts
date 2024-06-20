@@ -8,6 +8,7 @@ import {
   Length,
 } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
   @IsString()
@@ -41,5 +42,6 @@ export class CreateUserDto {
 
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => value === 'true') // Convert string to boolean due to the usage of form-data
   isOnboardingCompleted: boolean;
 }
