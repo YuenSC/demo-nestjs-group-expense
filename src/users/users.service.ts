@@ -13,6 +13,7 @@ import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { PaginationService } from '../pagination/pagination.service';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { FileUploadService } from '../file-upload/file-upload.service';
 
 @Injectable()
 export class UsersService extends PaginationService {
@@ -23,53 +24,113 @@ export class UsersService extends PaginationService {
     private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly fileUploadService: FileUploadService,
   ) {
     super();
   }
 
-  async create(createUserDto: CreateUserDto) {
-    const { password, retypedPassword, ...rest } = createUserDto;
-
+  // Helper methods
+  private validatePasswords(createUserDto: CreateUserDto) {
+    const { password, retypedPassword } = createUserDto;
     if (password !== retypedPassword) {
       throw new BadRequestException(
         'Password and retyped password do not match',
       );
     }
+  }
 
+  private async processProfilePicture(
+    profilePicture?: Express.Multer.File,
+  ): Promise<string> {
+    if (!profilePicture) return '';
+    const { key } = await this.fileUploadService.uploadFile(
+      profilePicture,
+      'profile-pictures/',
+    );
+    return key;
+  }
+
+  private async createUserRecord(
+    createUserDto: CreateUserDto,
+    imageKey: string,
+  ): Promise<User> {
+    const { password, ...rest } = createUserDto;
+    const hashedPassword = await this.authService.hashPassword(password);
+    return new User({ ...rest, password: hashedPassword, imageKey });
+  }
+
+  private async saveUser(user: User): Promise<User> {
     try {
-      const user = new User({
-        ...rest,
-        password: await this.authService.hashPassword(password),
-      });
-
       return await this.userRepository.save(user);
     } catch (error) {
-      // this.logger.error(error.message);
-      if (error.code === 'ER_DUP_ENTRY') {
-        throw new BadRequestException('User already exists');
-      }
-      throw new BadRequestException(error.code);
+      this.handleSaveUserError(error);
     }
   }
 
+  private handleSaveUserError(error: any): never {
+    if (error.code === 'ER_DUP_ENTRY') {
+      throw new BadRequestException('User already exists');
+    }
+    throw new BadRequestException(error.code);
+  }
+
+  private async attachSignedUrlToUser(user: User): Promise<User> {
+    const { url } = await this.fileUploadService.getPresignedSignedUrl(
+      user.imageKey,
+    );
+    return new User({
+      ...user,
+      imageUrl: url,
+    });
+  }
+
+  // Public methods
+  async create(
+    createUserDto: CreateUserDto,
+    profilePicture?: Express.Multer.File,
+  ) {
+    this.validatePasswords(createUserDto);
+
+    const imageKey = await this.processProfilePicture(profilePicture);
+    const user = await this.createUserRecord(createUserDto, imageKey);
+
+    return this.saveUser(user);
+  }
+
   async findAll(filter: PaginationFilterDto) {
-    return await this.paginate(this.userRepository, filter, {});
+    const { items, meta } = await this.paginate(
+      this.userRepository,
+      filter,
+      {},
+    );
+
+    const updatedItems = await Promise.all(
+      items.map((user) => this.attachSignedUrlToUser(user)),
+    );
+
+    return {
+      items: updatedItems,
+      meta,
+    };
   }
 
   async findOne(id: string) {
-    return await this.userRepository.findOneByOrFail({ id });
+    const user = await this.userRepository.findOneByOrFail({ id });
+    return await this.attachSignedUrlToUser(user);
   }
 
   async findOneByEmail(email: string) {
     return await this.userRepository.findOneByOrFail({ email });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.userRepository.update(id, updateUserDto);
-  }
-
-  updateLastLogin(id: string) {
-    return this.userRepository.update(id, { lastLoginAt: new Date() });
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    profilePicture: Express.Multer.File,
+  ) {
+    const imageKey = await this.processProfilePicture(profilePicture);
+    await this.userRepository.update(id, { ...updateUserDto, imageKey });
+    return await this.findOne(id);
   }
 
   async remove(id: string) {
@@ -80,5 +141,9 @@ export class UsersService extends PaginationService {
     }
 
     return `User with id ${id} has been deleted`;
+  }
+
+  async updateLastLogin(id: string) {
+    return await this.userRepository.update(id, { lastLoginAt: new Date() });
   }
 }

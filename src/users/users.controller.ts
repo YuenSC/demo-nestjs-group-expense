@@ -7,13 +7,17 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { createParseFilePipe } from '../utils/parseFilePipeConfig';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @UseGuards(AuthGuardJwt)
 @Controller('users')
@@ -21,8 +25,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile(createParseFilePipe()) file: Express.Multer.File,
+  ) {
+    return this.usersService.create(createUserDto, file);
   }
 
   @Get()
@@ -36,8 +44,13 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile(createParseFilePipe()) file: Express.Multer.File,
+  ) {
+    return this.usersService.update(id, updateUserDto, file);
   }
 
   @Delete(':id')
