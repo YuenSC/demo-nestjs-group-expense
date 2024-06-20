@@ -11,12 +11,14 @@ import envFilePath from './config/envFilePath';
 import { GroupsModule } from './groups/groups.module';
 import { TransformInterceptor } from './transform.interceptor';
 import { UsersModule } from './users/users.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import s3Config from './config/s3.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, authJwtConfig],
+      load: [databaseConfig, authJwtConfig, s3Config],
       envFilePath: envFilePath,
     }),
     TypeOrmModule.forRootAsync({
@@ -25,6 +27,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     AuthModule,
     GroupsModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [
