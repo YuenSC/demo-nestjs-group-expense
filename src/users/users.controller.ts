@@ -25,7 +25,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('profileImage'))
   create(
     @Body() createUserDto: CreateUserDto,
     @UploadedFile(createParseFilePipe()) file: Express.Multer.File,
@@ -44,7 +44,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('profileImage'))
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
