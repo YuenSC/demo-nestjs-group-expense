@@ -129,7 +129,10 @@ export class UsersService extends PaginationService {
     profilePicture: Express.Multer.File,
   ) {
     const imageKey = await this.processProfilePicture(profilePicture);
-    await this.userRepository.update(id, { ...updateUserDto, imageKey });
+    const updateData = imageKey
+      ? { ...updateUserDto, imageKey }
+      : updateUserDto;
+    await this.userRepository.update(id, updateData);
     return await this.findOne(id);
   }
 

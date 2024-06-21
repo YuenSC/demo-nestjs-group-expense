@@ -81,7 +81,9 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      message: `Error: ${exception.message}` + (message ? ` - ${message}` : ''),
+      message:
+        `Error: ${exception.message === message ? 'Validation Error' : exception.message}` +
+        (message ? ` - ${message}` : ''),
       timestamp: new Date().toISOString(),
       path: request.url,
     });
