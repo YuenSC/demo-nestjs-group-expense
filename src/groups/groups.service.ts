@@ -39,7 +39,18 @@ export class GroupsService extends PaginationService {
   }
 
   async findOne(id: string) {
-    return await this.groupRepository.findOneByOrFail({ id });
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['userGroups', 'userGroups.user'],
+    });
+
+    const transformedGroup = {
+      ...group,
+      users: group.userGroups.map((userGroup) => userGroup.user),
+    };
+    delete transformedGroup.userGroups;
+
+    return transformedGroup;
   }
 
   async update(id: string, updateGroupDto: UpdateGroupDto) {
