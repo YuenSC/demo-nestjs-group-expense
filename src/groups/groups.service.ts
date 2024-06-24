@@ -8,6 +8,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { Group } from './entities/group.entity';
 import { UserGroupService } from './user-group.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GroupsService extends PaginationService {
@@ -15,6 +16,7 @@ export class GroupsService extends PaginationService {
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
     private readonly userGroupService: UserGroupService,
+    private readonly usersService: UsersService,
   ) {
     super();
   }
@@ -44,12 +46,14 @@ export class GroupsService extends PaginationService {
       relations: ['userGroups', 'userGroups.user'],
     });
 
-    const transformedGroup = {
-      ...group,
-      users: group.userGroups.map((userGroup) => userGroup.user),
-    };
-    delete transformedGroup.userGroups;
+    const users = await Promise.all(
+      group.userGroups.map(async (userGroup) => {
+        return await this.usersService.attachSignedUrlToUser(userGroup.user);
+      }),
+    );
 
+    const transformedGroup = { ...group, users };
+    delete transformedGroup.userGroups;
     return transformedGroup;
   }
 

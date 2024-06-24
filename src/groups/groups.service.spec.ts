@@ -10,6 +10,7 @@ import { Group } from './entities/group.entity';
 import { UserGroup } from './entities/user-group.entity';
 import { GroupsService } from './groups.service';
 import { UserGroupService } from './user-group.service';
+import { UsersService } from '../users/users.service';
 
 describe('GroupsService', () => {
   let groupService: GroupsService;
@@ -33,6 +34,12 @@ describe('GroupsService', () => {
         {
           provide: getRepositoryToken(UserGroup),
           useValue: createMockRepository(),
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            attachSignedUrlToUsers: jest.fn(),
+          },
         },
       ],
     }).compile();

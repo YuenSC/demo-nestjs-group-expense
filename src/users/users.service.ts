@@ -79,7 +79,7 @@ export class UsersService extends PaginationService {
     throw new BadRequestException(error.code);
   }
 
-  private async attachSignedUrlToUser(user: User): Promise<User> {
+  public async attachSignedUrlToUser(user: User): Promise<User> {
     const { url } = await this.fileUploadService.getPresignedSignedUrl(
       user.imageKey,
     );
