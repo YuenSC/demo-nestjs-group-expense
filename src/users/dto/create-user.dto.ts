@@ -12,13 +12,14 @@ import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
   @IsString()
-  @IsOptional()
   @Length(2)
   name: string;
 
   @IsEmail()
+  @IsOptional()
   email: string;
 
+  @IsOptional()
   @IsStrongPassword({
     minLength: 8,
     minSymbols: 1,
@@ -28,6 +29,7 @@ export class CreateUserDto {
   })
   password: string;
 
+  @IsOptional()
   @IsStrongPassword({
     minLength: 8,
     minSymbols: 1,

@@ -14,12 +14,12 @@ export class User extends BaseEntity<User> {
   @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsEmail()
   @Index({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude({ toPlainOnly: true })
   password: string;
 
