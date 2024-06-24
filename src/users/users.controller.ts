@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -18,6 +19,8 @@ import { createParseFilePipe } from '../utils/parseFilePipeConfig';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from './entities/user.entity';
 
 @UseGuards(AuthGuardJwt)
 @Controller('users')
@@ -29,7 +32,11 @@ export class UsersController {
   create(
     @Body() createUserDto: CreateUserDto,
     @UploadedFile(createParseFilePipe()) file: Express.Multer.File,
+    @CurrentUser() user: User,
   ) {
+    if (user.role !== 'admin' && createUserDto.role === 'admin') {
+      throw new ForbiddenException('Only admins can create admins');
+    }
     return this.usersService.create(createUserDto, file);
   }
 

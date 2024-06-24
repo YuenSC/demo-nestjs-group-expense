@@ -32,10 +32,12 @@ export class UsersService extends PaginationService {
   // Helper methods
   private validatePasswords(createUserDto: CreateUserDto) {
     const { password, retypedPassword } = createUserDto;
-    if (password !== retypedPassword) {
-      throw new BadRequestException(
-        'Password and retyped password do not match',
-      );
+    if (password || retypedPassword) {
+      if (password !== retypedPassword) {
+        throw new BadRequestException(
+          'Password and retyped password do not match',
+        );
+      }
     }
   }
 
@@ -55,7 +57,10 @@ export class UsersService extends PaginationService {
     imageKey: string,
   ): Promise<User> {
     const { password, ...rest } = createUserDto;
-    const hashedPassword = await this.authService.hashPassword(password);
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await this.authService.hashPassword(password);
+    }
     return new User({ ...rest, password: hashedPassword, imageKey });
   }
 
