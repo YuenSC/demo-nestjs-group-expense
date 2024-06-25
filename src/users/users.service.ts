@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AuthService } from '../auth/auth.service';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { PaginationService } from '../pagination/pagination.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { AuthService } from '../auth/auth.service';
-import { PaginationService } from '../pagination/pagination.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
-import { FileUploadService } from '../file-upload/file-upload.service';
 
 @Injectable()
 export class UsersService extends PaginationService {
@@ -153,5 +153,9 @@ export class UsersService extends PaginationService {
 
   async updateLastLogin(id: string) {
     return await this.userRepository.update(id, { lastLoginAt: new Date() });
+  }
+
+  async resetAll() {
+    return await this.userRepository.createQueryBuilder().delete().execute();
   }
 }

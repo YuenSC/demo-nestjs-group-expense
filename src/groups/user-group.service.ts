@@ -2,12 +2,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { PaginationService } from '../pagination/pagination.service';
+import { User, UserRole } from '../users/entities/user.entity';
 import { AddUserDto } from './dto/add-user.dto';
+import { CreateGroupUserDto } from './dto/create-group-user.dto';
 import { Group } from './entities/group.entity';
 import { UserGroup } from './entities/user-group.entity';
-import { PaginationService } from '../pagination/pagination.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @Injectable()
 export class UserGroupService extends PaginationService {
@@ -139,6 +140,28 @@ export class UserGroupService extends PaginationService {
 
     // Return the result with details of added and failed users
     return { addedUsers, failedUsers };
+  }
+
+  async createUser(groupId: string, createGroupUserDto: CreateGroupUserDto) {
+    // 1. Find the Group
+    const group = await this.groupRepository.findOneBy({ id: groupId });
+    if (!group) {
+      throw new BadRequestException('Group not found');
+    }
+
+    // 2. Create the User
+    const user = new User({ ...createGroupUserDto, role: UserRole.USER });
+    await this.usersRepository.save(user);
+
+    // 3. Create the UserGroup
+    const userGroup = new UserGroup({
+      group,
+      user,
+      isAdmin: createGroupUserDto.isAdmin,
+    });
+    await this.userGroupRepository.save(userGroup);
+
+    return user;
   }
 
   async removeUsers(groupId: string, userId: string) {

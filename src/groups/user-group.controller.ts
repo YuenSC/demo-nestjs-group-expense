@@ -9,10 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { AddUserDto } from './dto/add-user.dto';
+import { CreateGroupUserDto } from './dto/create-group-user.dto';
 import { IsGroupAdminGuard } from './is-group-admin.guard';
 import { UserGroupService } from './user-group.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @UseGuards(AuthGuardJwt)
 @Controller('groups/:groupId/users')
@@ -31,6 +32,15 @@ export class UserGroupController {
   @UseGuards(IsGroupAdminGuard)
   addUsers(@Param('groupId') groupId: string, @Body() addUserDto: AddUserDto) {
     return this.userGroupService.addUsers(groupId, addUserDto);
+  }
+
+  @Post('create-user')
+  @UseGuards(IsGroupAdminGuard)
+  createUsers(
+    @Param('groupId') groupId: string,
+    @Body() createGroupUserDto: CreateGroupUserDto,
+  ) {
+    return this.userGroupService.createUser(groupId, createGroupUserDto);
   }
 
   @Delete(':userId')

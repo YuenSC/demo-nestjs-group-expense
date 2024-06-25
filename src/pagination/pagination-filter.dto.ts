@@ -12,7 +12,6 @@ function toNumber(
   options: { default: number; min: number },
 ): number {
   let num = parseInt(value, 10);
-  console.log('toNumber', num);
   if (isNaN(num) || num < options.min) {
     num = options.default;
   }

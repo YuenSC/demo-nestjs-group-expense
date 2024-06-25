@@ -22,7 +22,7 @@ export class IsGroupAdminGuard implements CanActivate {
 
     const isValid = await this.validateRequest(user, groupId);
     if (!isValid) {
-      throw new ForbiddenException('You are not the creator of this group');
+      throw new ForbiddenException('You are not the group admin of this group');
     }
     return isValid;
   }
