@@ -48,7 +48,13 @@ export class GroupsService extends PaginationService {
 
     const users = await Promise.all(
       group.userGroups.map(async (userGroup) => {
-        return await this.usersService.attachSignedUrlToUser(userGroup.user);
+        const user = await this.usersService.attachSignedUrlToUser(
+          userGroup.user,
+        );
+        return {
+          user,
+          isAdmin: userGroup.isAdmin,
+        };
       }),
     );
 

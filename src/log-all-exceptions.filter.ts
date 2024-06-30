@@ -69,7 +69,7 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const postgresErrorMessage = postgresErrorCodeToMessage[exception.message];
+    const postgresErrorMessage = postgresErrorCodeToMessage[exception.code];
 
     const validationErrorMessage = Array.isArray(exception.response?.message)
       ? exception.response.message.join(', ')
@@ -81,9 +81,7 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      message:
-        `Error: ${exception.message === message ? 'Validation Error' : exception.message}` +
-        (message ? ` - ${message}` : ''),
+      message: `Error: ${message}`,
       timestamp: new Date().toISOString(),
       path: request.url,
     });

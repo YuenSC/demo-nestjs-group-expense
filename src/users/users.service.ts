@@ -142,13 +142,20 @@ export class UsersService extends PaginationService {
   }
 
   async remove(id: string) {
-    const { affected } = await this.userRepository.delete(id);
-
-    if (affected === 0) {
-      throw new BadRequestException('User not found');
+    try {
+      const { affected } = await this.userRepository.delete(id);
+      if (affected === 0) {
+        throw new BadRequestException('User not found');
+      }
+      return `User with id ${id} has been deleted`;
+    } catch (error) {
+      console.log('error', error);
+      if (error.code === '23503')
+        throw new BadRequestException(
+          'Please remove user from group before deleting user',
+        );
+      throw error;
     }
-
-    return `User with id ${id} has been deleted`;
   }
 
   async updateLastLogin(id: string) {
