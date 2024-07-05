@@ -125,7 +125,7 @@ export class UsersService extends PaginationService {
   }
 
   async findOneByEmail(email: string) {
-    return await this.userRepository.findOneByOrFail({ email });
+    return await this.userRepository.findOneBy({ email });
   }
 
   async update(

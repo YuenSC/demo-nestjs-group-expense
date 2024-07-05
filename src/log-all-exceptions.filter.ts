@@ -55,6 +55,12 @@ const postgresErrorCodeToMessage = {
   '42P40': 'Invalid catalog name',
   '42P41': 'Invalid schema name',
 };
+/**
+ * Error Type
+ * 1. Postgres Error
+ * 2. Validation Error
+ * 3. others
+ */
 
 @Catch()
 export class LogAllExceptionsFilter implements ExceptionFilter {
