@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString, Min } from 'class-validator';
+import { IsDateString, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateExpenseDto {
   @IsString()
@@ -8,6 +8,6 @@ export class CreateExpenseDto {
   @Min(0)
   amount: number;
 
-  @IsDate()
+  @IsDateString()
   incurredOn: Date;
 }

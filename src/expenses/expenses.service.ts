@@ -21,9 +21,7 @@ export class ExpensesService extends PaginationService {
   }
 
   async create(groupId: string, createExpenseDto: CreateExpenseDto) {
-    const group = await this.groupRepository.findOneBy({
-      id: groupId,
-    });
+    const group = await this.groupRepository.findOneBy({ id: groupId });
     if (!group) throw new BadRequestException('Group not found');
 
     const expense = new Expense({ ...createExpenseDto, group });

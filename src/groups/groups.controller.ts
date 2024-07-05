@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Patch,
   Post,
   Query,
@@ -12,13 +11,14 @@ import {
 } from '@nestjs/common';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { UUIDParam } from '../decorators/uuid-param.decorator';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { User, UserRole } from '../users/entities/user.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { GroupsService } from './groups.service';
 import { IsGroupAdminGuard } from './is-group-admin.guard';
 import { UserGroupService } from './user-group.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 
 @UseGuards(AuthGuardJwt)
 @Controller('groups')
@@ -53,13 +53,13 @@ export class GroupsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@UUIDParam('id') id: string) {
     return this.groupsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(IsGroupAdminGuard)
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
+  update(@UUIDParam('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupsService.update(id, updateGroupDto);
   }
 
@@ -73,7 +73,7 @@ export class GroupsController {
 
   @Delete(':id')
   @UseGuards(IsGroupAdminGuard)
-  remove(@Param('id') id: string) {
+  remove(@UUIDParam('id') id: string) {
     return this.groupsService.remove(id);
   }
 }

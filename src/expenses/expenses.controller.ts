@@ -1,16 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
-import { ExpensesService } from './expenses.service';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { UUIDParam } from '../decorators/uuid-param.decorator';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { ExpensesService } from './expenses.service';
 
 @Controller('groups/:groupId/expense')
 export class ExpensesController {
@@ -18,7 +11,7 @@ export class ExpensesController {
 
   @Post()
   create(
-    @Param('groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     @Body() createExpenseDto: CreateExpenseDto,
   ) {
     return this.expenseService.create(groupId, createExpenseDto);
@@ -26,24 +19,27 @@ export class ExpensesController {
 
   @Get()
   findAll(
-    @Param('groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     paginationFilterDto: PaginationFilterDto,
   ) {
     return this.expenseService.findAll(groupId, paginationFilterDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@UUIDParam('id') id: string) {
     return this.expenseService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
+  update(
+    @UUIDParam('id') id: string,
+    @Body() updateExpenseDto: UpdateExpenseDto,
+  ) {
     return this.expenseService.update(id, updateExpenseDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@UUIDParam('id') id: string) {
     return this.expenseService.remove(id);
   }
 }

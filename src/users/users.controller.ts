@@ -4,7 +4,6 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  Param,
   Patch,
   Post,
   Query,
@@ -14,13 +13,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { UUIDParam } from '../decorators/uuid-param.decorator';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { createParseFilePipe } from '../utils/parseFilePipeConfig';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersService } from './users.service';
-import { CurrentUser } from '../auth/current-user.decorator';
 import { User, UserRole } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -70,7 +70,7 @@ export class UsersController {
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
-  findOne(@Param('id') id: string) {
+  findOne(@UUIDParam('id') id: string) {
     return this.usersService.findOne(id);
   }
 
@@ -78,7 +78,7 @@ export class UsersController {
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(FileInterceptor('profileImage'))
   update(
-    @Param('id') id: string,
+    @UUIDParam('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile(createParseFilePipe()) file: Express.Multer.File,
   ) {
@@ -95,7 +95,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(AuthGuardJwt)
-  remove(@Param('id') id: string) {
+  remove(@UUIDParam('id') id: string) {
     return this.usersService.remove(id);
   }
 }
