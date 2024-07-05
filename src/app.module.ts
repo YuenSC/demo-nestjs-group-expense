@@ -12,6 +12,7 @@ import { GroupsModule } from './groups/groups.module';
 import { TransformInterceptor } from './transform.interceptor';
 import { UsersModule } from './users/users.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { ExpensesModule } from './expenses/expenses.module';
 import s3Config from './config/s3.config';
 
 @Module({
@@ -28,6 +29,7 @@ import s3Config from './config/s3.config';
     AuthModule,
     GroupsModule,
     FileUploadModule,
+    ExpensesModule,
   ],
   controllers: [AppController],
   providers: [

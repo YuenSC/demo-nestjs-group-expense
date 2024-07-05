@@ -10,5 +10,6 @@ export const createMockGroup = (defaultGroup?: Partial<Group>) =>
     name: 'Test Group',
     createdBy: 'user1',
     description: 'test group',
+    expenses: [],
     ...defaultGroup,
   }) satisfies Group;
