@@ -2,12 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from '../groups/entities/group.entity';
+import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { PaginationService } from '../pagination/pagination.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { Expense } from './entities/expense.entity';
-import { PaginationService } from '../pagination/pagination.service';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { ExpenseTransaction } from './entities/expense-transaction.entity';
+import { Expense } from './entities/expense.entity';
+import { validateTransactionsWithAutoSplit } from './utils/validateTransactionsWithAutoSplit';
 
 @Injectable()
 export class ExpensesService extends PaginationService {
@@ -38,6 +39,13 @@ export class ExpensesService extends PaginationService {
         return new ExpenseTransaction({ ...transaction, user: userGroup.user });
       },
     );
+
+    try {
+      validateTransactionsWithAutoSplit(createExpenseDto.amount, transactions);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+
     const expense = new Expense({ ...rest, group, transactions });
     return await this.expenseRepository.save(expense);
   }
