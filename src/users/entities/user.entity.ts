@@ -3,6 +3,8 @@ import { IsEmail, IsEnum } from 'class-validator';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { UserGroup } from '../../groups/entities/user-group.entity';
+import { ExpensePayer } from '../../expenses/entities/expense-payer.entity';
+import { ExpensePayee } from '../../expenses/entities/expense-payee.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -41,4 +43,10 @@ export class User extends BaseEntity<User> {
 
   @OneToMany(() => UserGroup, (userGroup) => userGroup.group)
   userGroups: UserGroup[];
+
+  @OneToMany(() => ExpensePayer, (expensePayer) => expensePayer.user)
+  payers: ExpensePayer[];
+
+  @OneToMany(() => ExpensePayee, (expensePayee) => expensePayee.user)
+  payees: ExpensePayee[];
 }

@@ -15,5 +15,7 @@ export const createMockUser = (defaultUser?: Partial<User>) =>
     isOnboardingCompleted: false,
     imageKey: 'image_key',
     imageUrl: 'image_url',
+    payees: [],
+    payers: [],
     ...defaultUser,
   }) satisfies User;
