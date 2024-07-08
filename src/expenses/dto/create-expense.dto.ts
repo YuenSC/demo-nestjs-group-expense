@@ -1,4 +1,13 @@
-import { IsDateString, IsNumber, IsString, Min } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsDateString,
+  IsNumber,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateExpenseTransactionDto } from './create-expense-transaction.dto';
 
 export class CreateExpenseDto {
   @IsString()
@@ -10,4 +19,9 @@ export class CreateExpenseDto {
 
   @IsDateString()
   incurredOn: Date;
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateExpenseTransactionDto)
+  @ArrayNotEmpty()
+  createExpenseTransactions: CreateExpenseTransactionDto[];
 }

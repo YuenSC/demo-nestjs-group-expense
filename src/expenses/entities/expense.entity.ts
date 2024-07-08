@@ -1,8 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { Group } from '../../groups/entities/group.entity';
-import { ExpensePayer } from './expense-payer.entity';
-import { ExpensePayee } from './expense-payee.entity';
+import { ExpenseTransaction } from './expense-transaction.entity';
 
 @Entity()
 export class Expense extends BaseEntity<Expense> {
@@ -18,15 +17,13 @@ export class Expense extends BaseEntity<Expense> {
   @ManyToOne(() => Group, (group) => group.expenses)
   group: Group;
 
-  @OneToMany(() => ExpensePayer, (expensePayer) => expensePayer.expense, {
-    eager: true,
-    cascade: true,
-  })
-  payers: ExpensePayer[];
-
-  @OneToMany(() => ExpensePayee, (expensePayee) => expensePayee.expense, {
-    eager: true,
-    cascade: true,
-  })
-  payees: ExpensePayee[];
+  @OneToMany(
+    () => ExpenseTransaction,
+    (expenseTransaction) => expenseTransaction.expense,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  transactions: ExpenseTransaction[];
 }

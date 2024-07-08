@@ -7,6 +7,7 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { Expense } from './entities/expense.entity';
 import { PaginationService } from '../pagination/pagination.service';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { ExpenseTransaction } from './entities/expense-transaction.entity';
 
 @Injectable()
 export class ExpensesService extends PaginationService {
@@ -21,10 +22,23 @@ export class ExpensesService extends PaginationService {
   }
 
   async create(groupId: string, createExpenseDto: CreateExpenseDto) {
-    const group = await this.groupRepository.findOneBy({ id: groupId });
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ['userGroups', 'userGroups.user'],
+    });
     if (!group) throw new BadRequestException('Group not found');
 
-    const expense = new Expense({ ...createExpenseDto, group });
+    const { createExpenseTransactions, ...rest } = createExpenseDto;
+    const transactions = createExpenseTransactions.map(
+      ({ userId, ...transaction }) => {
+        const userGroup = group.userGroups.find(
+          (userGroup) => userGroup.user.id === userId,
+        );
+        if (!userGroup) throw new BadRequestException(`Invalid User Id`);
+        return new ExpenseTransaction({ ...transaction, user: userGroup.user });
+      },
+    );
+    const expense = new Expense({ ...rest, group, transactions });
     return await this.expenseRepository.save(expense);
   }
 

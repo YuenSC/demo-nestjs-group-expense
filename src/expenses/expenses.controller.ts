@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UUIDParam } from '../decorators/uuid-param.decorator';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -20,7 +28,7 @@ export class ExpensesController {
   @Get()
   findAll(
     @UUIDParam('groupId') groupId: string,
-    paginationFilterDto: PaginationFilterDto,
+    @Query() paginationFilterDto: PaginationFilterDto,
   ) {
     return this.expenseService.findAll(groupId, paginationFilterDto);
   }

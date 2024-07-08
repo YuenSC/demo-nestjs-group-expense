@@ -5,6 +5,9 @@ import { Expense } from './entities/expense.entity';
 import { Group } from '../groups/entities/group.entity';
 import { Repository } from 'typeorm';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { TransactionType } from './entities/expense-transaction.entity';
+import { createMockUserGroup } from '../../test/helpers/createMockUserGroup';
+import { createMockUser } from '../../test/helpers/createMockUser';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -27,7 +30,7 @@ describe('ExpensesService', () => {
         {
           provide: getRepositoryToken(Group),
           useValue: {
-            findOneBy: jest.fn(),
+            findOne: jest.fn(),
           },
         },
       ],
@@ -51,18 +54,45 @@ describe('ExpensesService', () => {
         name: 'Test Expense',
         amount: 100,
         incurredOn: new Date(),
+        createExpenseTransactions: [
+          {
+            isAutoSplit: true,
+            type: TransactionType.PAYEE,
+            userId: 'user1',
+          },
+          {
+            isAutoSplit: true,
+            type: TransactionType.PAYER,
+            userId: 'user1',
+          },
+        ],
       } satisfies CreateExpenseDto;
-      const group = { id: groupId, name: 'Test Group' } as Group;
+      const group = {
+        id: groupId,
+        name: 'Test Group',
+        userGroups: [
+          createMockUserGroup({
+            userId: 'user1',
+            user: createMockUser({ id: 'user1' }),
+          }),
+        ],
+      } as Group;
 
-      jest.spyOn(groupRepository, 'findOneBy').mockResolvedValue(group);
+      jest.spyOn(groupRepository, 'findOne').mockResolvedValue(group);
       jest
         .spyOn(expenseRepository, 'save')
-        .mockResolvedValue({ ...createExpenseDto, group } as Expense);
+        .mockImplementationOnce((expense: Expense) => Promise.resolve(expense));
 
       const result = await service.create(groupId, createExpenseDto);
 
-      expect(result).toEqual(expect.objectContaining(createExpenseDto));
-      expect(groupRepository.findOneBy).toHaveBeenCalledWith({ id: groupId });
+      expect(result).toEqual(
+        expect.objectContaining({
+          name: createExpenseDto.name,
+          amount: createExpenseDto.amount,
+          incurredOn: createExpenseDto.incurredOn,
+          group: group,
+        } as Expense),
+      );
     });
 
     it('should throw an error if group not found', async () => {
@@ -71,8 +101,20 @@ describe('ExpensesService', () => {
         name: 'Test Expense',
         amount: 100,
         incurredOn: new Date(),
+        createExpenseTransactions: [
+          {
+            isAutoSplit: true,
+            type: TransactionType.PAYEE,
+            userId: 'user1',
+          },
+          {
+            isAutoSplit: true,
+            type: TransactionType.PAYER,
+            userId: 'user1',
+          },
+        ],
       } satisfies CreateExpenseDto;
-      jest.spyOn(groupRepository, 'findOneBy').mockResolvedValue(null);
+      jest.spyOn(groupRepository, 'findOne').mockResolvedValue(null);
 
       await expect(service.create(groupId, createExpenseDto)).rejects.toThrow(
         'Group not found',
