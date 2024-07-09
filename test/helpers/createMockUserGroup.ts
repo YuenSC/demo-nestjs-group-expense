@@ -11,6 +11,7 @@ const mockGroup = {
   name: 'Test Group',
   updatedAt: new Date(),
   userGroups: [],
+  expenses: [],
 } satisfies Group;
 
 export const createMockUserGroup = (options?: Partial<UserGroup>) =>

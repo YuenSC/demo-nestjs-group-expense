@@ -3,12 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+import { UUIDParam } from '../decorators/uuid-param.decorator';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { AddUserDto } from './dto/add-user.dto';
 import { CreateGroupUserDto } from './dto/create-group-user.dto';
@@ -22,7 +22,7 @@ export class UserGroupController {
 
   @Get()
   findUsers(
-    @Param('groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     @Query() paginationFilterDto: PaginationFilterDto,
   ) {
     return this.userGroupService.findUsers(groupId, paginationFilterDto);
@@ -30,14 +30,17 @@ export class UserGroupController {
 
   @Post()
   @UseGuards(IsGroupAdminGuard)
-  addUsers(@Param('groupId') groupId: string, @Body() addUserDto: AddUserDto) {
+  addUsers(
+    @UUIDParam('groupId') groupId: string,
+    @Body() addUserDto: AddUserDto,
+  ) {
     return this.userGroupService.addUsers(groupId, addUserDto);
   }
 
   @Post('create-user')
   @UseGuards(IsGroupAdminGuard)
   createUsers(
-    @Param('groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     @Body() createGroupUserDto: CreateGroupUserDto,
   ) {
     return this.userGroupService.createUser(groupId, createGroupUserDto);
@@ -46,8 +49,8 @@ export class UserGroupController {
   @Delete(':userId')
   @UseGuards(IsGroupAdminGuard)
   removeUsers(
-    @Param('groupId') groupId: string,
-    @Param('userId') userId: string,
+    @UUIDParam('groupId') groupId: string,
+    @UUIDParam('userId') userId: string,
   ) {
     return this.userGroupService.removeUsers(groupId, userId);
   }

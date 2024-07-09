@@ -2,6 +2,7 @@ import { Exclude } from 'class-transformer';
 import { IsEmail, IsEnum } from 'class-validator';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
+import { ExpenseTransaction } from '../../expenses/entities/expense-transaction.entity';
 import { UserGroup } from '../../groups/entities/user-group.entity';
 
 export enum UserRole {
@@ -41,4 +42,10 @@ export class User extends BaseEntity<User> {
 
   @OneToMany(() => UserGroup, (userGroup) => userGroup.group)
   userGroups: UserGroup[];
+
+  @OneToMany(
+    () => ExpenseTransaction,
+    (expenseTransaction) => expenseTransaction.user,
+  )
+  transactions: ExpenseTransaction[];
 }
