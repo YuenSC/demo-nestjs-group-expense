@@ -8,12 +8,12 @@ import {
  * This function segregates payer and payee transactions and validates them separately.
  * If any transaction within the group is marked as auto-split, the total sum of that group's transactions
  * must not exceed the expected sum. Otherwise, the total sum must exactly match the expected sum.
- * @param expectedSum The expected sum to validate against.
+ * @param totalAmount The expected sum to validate against.
  * @param transactions Array of ExpenseTransaction objects representing all transactions to be validated.
  * @returns True if both payer and payee transactions are valid according to the rules, false otherwise.
  */
 export function validateTransactionsWithAutoSplit(
-  expectedSum: number,
+  totalAmount: number,
   transactions: ExpenseTransaction[],
 ): boolean {
   // Filter transactions into payers and payees
@@ -26,8 +26,8 @@ export function validateTransactionsWithAutoSplit(
 
   // Validate both groups of transactions against the expected sum
   return (
-    validateTransactions(expectedSum, payerTransactions) &&
-    validateTransactions(expectedSum, payeeTransactions)
+    validateTransactions(totalAmount, payerTransactions) &&
+    validateTransactions(totalAmount, payeeTransactions)
   );
 }
 /**
