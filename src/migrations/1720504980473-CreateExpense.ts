@@ -14,9 +14,6 @@ export class CreateExpense1720504980473 implements MigrationInterface {
       `CREATE TABLE "expense_transaction" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "type" "public"."expense_transaction_type_enum" NOT NULL DEFAULT 'payee', "amount" numeric(10,2), "isAutoSplit" boolean NOT NULL DEFAULT false, "userId" uuid NOT NULL, "expenseId" uuid, CONSTRAINT "PK_69f83886394c3078d274375eba8" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `ALTER TABLE "user" ADD "imageKey" character varying`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "user" ALTER COLUMN "email" DROP NOT NULL`,
     );
     await queryRunner.query(
@@ -49,7 +46,6 @@ export class CreateExpense1720504980473 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "user" ALTER COLUMN "email" SET NOT NULL`,
     );
-    await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "imageKey"`);
     await queryRunner.query(`DROP TABLE "expense_transaction"`);
     await queryRunner.query(
       `DROP TYPE "public"."expense_transaction_type_enum"`,
