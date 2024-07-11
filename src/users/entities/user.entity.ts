@@ -18,6 +18,7 @@ export class User extends BaseEntity<User> {
   @Column({ nullable: true })
   @IsEmail()
   @Index({ unique: true })
+  @Exclude({ toPlainOnly: true })
   email: string;
 
   @Column({ nullable: true })
@@ -26,6 +27,7 @@ export class User extends BaseEntity<User> {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   @IsEnum(UserRole)
+  @Exclude({ toPlainOnly: true })
   role: UserRole;
 
   @Column({ default: false })
@@ -35,7 +37,7 @@ export class User extends BaseEntity<User> {
   @Exclude({ toPlainOnly: true })
   imageKey: string;
 
-  imageUrl: string;
+  imageUrl: string; //generate dynamically from aws signed url
 
   @Column({ nullable: true })
   lastLoginAt: Date;
