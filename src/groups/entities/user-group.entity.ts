@@ -6,10 +6,10 @@ import { Group } from './group.entity';
 @Entity()
 @Unique(['userId', 'groupId'])
 export class UserGroup extends BaseEntity<UserGroup> {
-  @ManyToOne(() => User, (user) => user.userGroups)
+  @ManyToOne(() => User, (user) => user.userGroups, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Group, (group) => group.userGroups)
+  @ManyToOne(() => Group, (group) => group.userGroups, { onDelete: 'CASCADE' })
   group: Group;
 
   @Column({ default: false })

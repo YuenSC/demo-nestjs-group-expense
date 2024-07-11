@@ -14,7 +14,7 @@ export class Expense extends BaseEntity<Expense> {
   @Column()
   incurredOn: Date;
 
-  @ManyToOne(() => Group, (group) => group.expenses)
+  @ManyToOne(() => Group, (group) => group.expenses, { onDelete: 'CASCADE' })
   group: Group;
 
   @OneToMany(
