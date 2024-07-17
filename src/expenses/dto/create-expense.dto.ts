@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsDateString,
@@ -6,13 +7,9 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { CreateExpenseTransactionDto } from './create-expense-transaction.dto';
 
 export class CreateExpenseDto {
-  @IsString()
-  name: string;
-
   @IsNumber()
   @Min(0)
   amount: number;
@@ -24,4 +21,10 @@ export class CreateExpenseDto {
   @Type(() => CreateExpenseTransactionDto)
   @ArrayNotEmpty()
   createExpenseTransactions: CreateExpenseTransactionDto[];
+
+  @IsString()
+  currencyCode: string;
+
+  @IsString()
+  description: string;
 }

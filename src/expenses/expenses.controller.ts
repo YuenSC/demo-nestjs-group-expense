@@ -13,7 +13,7 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpensesService } from './expenses.service';
 
-@Controller('groups/:groupId/expense')
+@Controller('groups/:groupId/expenses')
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
 

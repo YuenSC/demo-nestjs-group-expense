@@ -6,10 +6,13 @@ import { ExpenseTransaction } from './expense-transaction.entity';
 @Entity()
 export class Expense extends BaseEntity<Expense> {
   @Column()
-  name: string;
+  amount: number;
 
   @Column()
-  amount: number;
+  description: string;
+
+  @Column()
+  currencyCode: string;
 
   @Column()
   incurredOn: Date;

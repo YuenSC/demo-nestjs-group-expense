@@ -18,7 +18,6 @@ export class User extends BaseEntity<User> {
   @Column({ nullable: true })
   @IsEmail()
   @Index({ unique: true })
-  @Exclude({ toPlainOnly: true })
   email: string;
 
   @Column({ nullable: true })
@@ -27,7 +26,6 @@ export class User extends BaseEntity<User> {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   @IsEnum(UserRole)
-  @Exclude({ toPlainOnly: true })
   role: UserRole;
 
   @Column({ default: false })
