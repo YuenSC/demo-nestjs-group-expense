@@ -9,6 +9,7 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseTransaction } from './entities/expense-transaction.entity';
 import { Expense } from './entities/expense.entity';
 import { validateTransactionsWithAutoSplit } from './utils/validateTransactionsWithAutoSplit';
+import { getUnresolvedAmountFromExpense } from './utils/getUnresolvedAmountFromExpense';
 
 @Injectable()
 export class ExpensesService extends PaginationService {
@@ -74,5 +75,34 @@ export class ExpensesService extends PaginationService {
       throw new BadRequestException('Expenses not found');
     }
     return `Expense with id ${id} has been deleted`;
+  }
+
+  async getUnresolvedAmountPerCurrency(groupId: string, userId: string) {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ['userGroups', 'userGroups.user'],
+    });
+
+    if (!group) throw new BadRequestException('Group not found');
+
+    const expenses = await this.expenseRepository.find({
+      where: { group: { id: groupId } },
+      relations: ['transactions', 'transactions.user'],
+    });
+
+    return expenses.reduce(
+      (acc, expense) => {
+        const unresolvedAmount = getUnresolvedAmountFromExpense(
+          expense,
+          userId,
+        );
+        return {
+          ...acc,
+          [expense.currencyCode]:
+            (acc[expense.currencyCode] ?? 0) + unresolvedAmount,
+        };
+      },
+      {} as Record<string, number>,
+    );
   }
 }
