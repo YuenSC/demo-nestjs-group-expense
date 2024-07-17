@@ -49,7 +49,7 @@ function validateTransactions(
   const sum = calculateSum(transactions);
 
   // Check for unique userIds
-  const userIds = new Set(transactions.map((t) => t.userId));
+  const userIds = new Set(transactions.map((t) => t.user.id));
   const allUserIdsUnique = userIds.size === transactions.length;
 
   if (!allUserIdsUnique) {
