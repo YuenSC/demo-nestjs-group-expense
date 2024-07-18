@@ -37,6 +37,11 @@ export class ExpensesController {
     return this.expenseService.getUnresolvedAmountPerCurrency(groupId, user.id);
   }
 
+  @Get('payment-relationship')
+  getPaymentRelationship(@UUIDParam('groupId') groupId: string) {
+    return this.expenseService.getPaymentRelationship(groupId);
+  }
+
   @Get()
   findAll(
     @UUIDParam('groupId') groupId: string,
