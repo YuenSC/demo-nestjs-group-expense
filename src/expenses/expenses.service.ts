@@ -8,7 +8,9 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseTransaction } from './entities/expense-transaction.entity';
 import { Expense } from './entities/expense.entity';
+import { calculateUserNetTransactionAmount } from './utils/calculateUserNetTransactionAmount';
 import { validateTransactionsWithAutoSplit } from './utils/validateTransactionsWithAutoSplit';
+import { generatePaymentRelationshipForOneCurrencyCode } from './utils/generatePaymentRelationshipForOneCurrencyCode';
 
 @Injectable()
 export class ExpensesService extends PaginationService {
@@ -74,5 +76,65 @@ export class ExpensesService extends PaginationService {
       throw new BadRequestException('Expenses not found');
     }
     return `Expense with id ${id} has been deleted`;
+  }
+
+  async getUnresolvedAmountPerCurrency(groupId: string, userId: string) {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ['userGroups', 'userGroups.user'],
+    });
+
+    if (!group) throw new BadRequestException('Group not found');
+
+    const expenses = await this.expenseRepository.find({
+      where: { group: { id: groupId } },
+      relations: ['transactions', 'transactions.user'],
+    });
+
+    return expenses.reduce(
+      (acc, expense) => {
+        const { netAmount, currencyCode } = calculateUserNetTransactionAmount(
+          expense,
+          userId,
+        );
+        return {
+          ...acc,
+          [expense.currencyCode]: (acc[currencyCode] ?? 0) + netAmount,
+        };
+      },
+      {} as Record<string, number>,
+    );
+  }
+
+  async getPaymentRelationship(groupId: string) {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ['userGroups', 'userGroups.user'],
+    });
+
+    if (!group) throw new BadRequestException('Group not found');
+
+    const expenses = await this.expenseRepository.find({
+      where: { group: { id: groupId } },
+      relations: ['transactions', 'transactions.user'],
+    });
+
+    const expenseByCurrency = expenses.reduce(
+      (acc, expense) => ({
+        ...acc,
+        [expense.currencyCode]: [...(acc[expense.currencyCode] ?? []), expense],
+      }),
+      {} as Record<string, Expense[]>,
+    );
+
+    const users = group.userGroups.map((userGroup) => userGroup.user);
+
+    const paymentRelationship = Object.fromEntries(
+      Object.entries(expenseByCurrency).map(([currencyCode, expenses]) => [
+        currencyCode,
+        generatePaymentRelationshipForOneCurrencyCode(expenses, users),
+      ]),
+    );
+    return paymentRelationship;
   }
 }

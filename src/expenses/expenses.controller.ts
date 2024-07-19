@@ -6,13 +6,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UUIDParam } from '../decorators/uuid-param.decorator';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpensesService } from './expenses.service';
-
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from '../users/entities/user.entity';
+import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+@UseGuards(AuthGuardJwt)
 @Controller('groups/:groupId/expenses')
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
@@ -23,6 +27,19 @@ export class ExpensesController {
     @Body() createExpenseDto: CreateExpenseDto,
   ) {
     return this.expenseService.create(groupId, createExpenseDto);
+  }
+
+  @Get('unresolved-amount-per-currency')
+  getUnresolvedAmountPerCurrency(
+    @UUIDParam('groupId') groupId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.expenseService.getUnresolvedAmountPerCurrency(groupId, user.id);
+  }
+
+  @Get('payment-relationship')
+  getPaymentRelationship(@UUIDParam('groupId') groupId: string) {
+    return this.expenseService.getPaymentRelationship(groupId);
   }
 
   @Get()
