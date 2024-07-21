@@ -79,16 +79,6 @@ export class UsersService extends PaginationService {
     throw new BadRequestException(error.code);
   }
 
-  public async attachSignedUrlToUser(user: User): Promise<User> {
-    const { url } = await this.fileUploadService.getPresignedSignedUrl(
-      user.imageKey,
-    );
-    return new User({
-      ...user,
-      imageUrl: url,
-    });
-  }
-
   // Public methods
   async create(
     createUserDto: CreateUserDto,
@@ -109,19 +99,11 @@ export class UsersService extends PaginationService {
       {},
     );
 
-    const updatedItems = await Promise.all(
-      items.map((user) => this.attachSignedUrlToUser(user)),
-    );
-
-    return {
-      items: updatedItems,
-      meta,
-    };
+    return { items, meta };
   }
 
   async findOne(id: string) {
-    const user = await this.userRepository.findOneByOrFail({ id });
-    return await this.attachSignedUrlToUser(user);
+    return await this.userRepository.findOneByOrFail({ id });
   }
 
   async findOneByEmail(email: string) {

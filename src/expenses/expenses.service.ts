@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Group } from '../groups/entities/group.entity';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { PaginationService } from '../pagination/pagination.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ExpensePaginationFilterDto } from './dto/expense-pagination-filter.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseTransaction } from './entities/expense-transaction.entity';
 import { Expense } from './entities/expense.entity';
 import { calculateUserNetTransactionAmount } from './utils/calculateUserNetTransactionAmount';
-import { validateTransactionsWithAutoSplit } from './utils/validateTransactionsWithAutoSplit';
 import { generatePaymentRelationshipForOneCurrencyCode } from './utils/generatePaymentRelationshipForOneCurrencyCode';
+import { validateTransactionsWithAutoSplit } from './utils/validateTransactionsWithAutoSplit';
 
 @Injectable()
 export class ExpensesService extends PaginationService {
@@ -52,9 +52,19 @@ export class ExpensesService extends PaginationService {
     return await this.expenseRepository.save(expense);
   }
 
-  async findAll(groupId: string, paginationFilterDto: PaginationFilterDto) {
+  async findAll(
+    groupId: string,
+    paginationFilterDto: ExpensePaginationFilterDto,
+  ) {
+    const { searchText } = paginationFilterDto;
+
     return await this.paginate(this.expenseRepository, paginationFilterDto, {
-      where: { group: { id: groupId } },
+      where: searchText
+        ? {
+            group: { id: groupId },
+            description: Like(`%${searchText.trim()}%`),
+          }
+        : { group: { id: groupId } },
     });
   }
 
@@ -130,10 +140,12 @@ export class ExpensesService extends PaginationService {
     const users = group.userGroups.map((userGroup) => userGroup.user);
 
     const paymentRelationship = Object.fromEntries(
-      Object.entries(expenseByCurrency).map(([currencyCode, expenses]) => [
-        currencyCode,
-        generatePaymentRelationshipForOneCurrencyCode(expenses, users),
-      ]),
+      Object.entries(expenseByCurrency)
+        .map(([currencyCode, expenses]) => [
+          currencyCode,
+          generatePaymentRelationshipForOneCurrencyCode(expenses, users),
+        ])
+        .filter(([, relationships]) => relationships.length > 0),
     );
     return paymentRelationship;
   }

@@ -8,14 +8,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuardJwt } from '../auth/auth-guard.jwt';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { UUIDParam } from '../decorators/uuid-param.decorator';
-import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
+import { User } from '../users/entities/user.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ExpensePaginationFilterDto } from './dto/expense-pagination-filter.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpensesService } from './expenses.service';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { User } from '../users/entities/user.entity';
-import { AuthGuardJwt } from '../auth/auth-guard.jwt';
 @UseGuards(AuthGuardJwt)
 @Controller('groups/:groupId/expenses')
 export class ExpensesController {
@@ -45,7 +45,7 @@ export class ExpensesController {
   @Get()
   findAll(
     @UUIDParam('groupId') groupId: string,
-    @Query() paginationFilterDto: PaginationFilterDto,
+    @Query() paginationFilterDto: ExpensePaginationFilterDto,
   ) {
     return this.expenseService.findAll(groupId, paginationFilterDto);
   }

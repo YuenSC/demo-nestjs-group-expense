@@ -18,7 +18,6 @@ export const generatePaymentRelationshipForOneCurrencyCode = (
   if (users.length === 0) return [];
 
   const userById = Object.fromEntries(users.map((user) => [user.id, user]));
-  console.log('userById', userById);
 
   const relationships: PaymentRelationship[] = [];
 
