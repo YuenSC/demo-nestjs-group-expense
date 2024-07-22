@@ -5,7 +5,7 @@ import { ExpenseTransaction } from './expense-transaction.entity';
 
 @Entity()
 export class Expense extends BaseEntity<Expense> {
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
   @Column()
