@@ -8,7 +8,6 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { Group } from './entities/group.entity';
 import { UserGroupService } from './user-group.service';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GroupsService extends PaginationService {
@@ -16,7 +15,6 @@ export class GroupsService extends PaginationService {
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
     private readonly userGroupService: UserGroupService,
-    private readonly usersService: UsersService,
   ) {
     super();
   }

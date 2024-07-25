@@ -85,7 +85,6 @@ export class LogAllExceptionsFilter implements ExceptionFilter {
       postgresErrorMessage || validationErrorMessage || exception.message;
 
     this.logger.error({ ...exception, requestUrl: request.url });
-    console.log('exception', exception);
 
     response.status(status).json({
       statusCode: status,

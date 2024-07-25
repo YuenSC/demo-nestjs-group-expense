@@ -10,6 +10,11 @@ export enum UserRole {
   USER = 'user',
 }
 
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
+
 @Entity()
 export class User extends BaseEntity<User> {
   @Column({ nullable: true })
@@ -48,4 +53,15 @@ export class User extends BaseEntity<User> {
     (expenseTransaction) => expenseTransaction.user,
   )
   transactions: ExpenseTransaction[];
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.INACTIVE,
+  })
+  status: UserStatus;
+
+  @Column({ nullable: true })
+  @Exclude({ toPlainOnly: true })
+  otpSecret: string;
 }
