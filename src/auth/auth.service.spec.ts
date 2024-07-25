@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { OtpService } from '../otp/otp.service';
+import { MailService } from '../mail/mail.service';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
@@ -33,6 +35,20 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: usersServiceMock },
         { provide: JwtService, useValue: jwtServiceMock },
+        {
+          provide: MailService,
+          useValue: {
+            sendMail: jest.fn(),
+          },
+        },
+        {
+          provide: OtpService,
+          useValue: {
+            generateOTP: jest.fn(),
+            getOtpExpireInSecond: jest.fn(),
+            validateOTP: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -51,7 +67,10 @@ describe('AuthService', () => {
     (usersService.findOneByEmail as jest.Mock).mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-    const result = await authService.validateUser(mockUser.email, mockPassword);
+    const result = await authService.validateUserAndUpdateLastLogin(
+      mockUser.email,
+      mockPassword,
+    );
 
     expect(result).toEqual(mockUser);
     expect(usersService.findOneByEmail).toHaveBeenCalledWith(mockUser.email);

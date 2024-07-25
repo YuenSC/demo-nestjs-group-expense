@@ -17,6 +17,9 @@ describe('AuthController', () => {
       generateAccessToken: jest
         .fn()
         .mockImplementation((user) => `mock_token_${user.id}`),
+      sendVerificationEmail: jest.fn().mockResolvedValue({
+        message: 'Email sent successfully',
+      }),
     };
 
     const AuthGuardLocalMock = jest.fn().mockImplementation(() => ({
@@ -66,17 +69,14 @@ describe('AuthController', () => {
       isOnboardingCompleted: false,
     } satisfies SignUpDto;
 
-    const response = {
-      cookie: jest.fn(),
-    } as unknown as Response;
-
     jest.spyOn(usersService, 'create').mockResolvedValue(createMockUser());
 
-    await authController.signUp(signUpDto, response);
+    await authController.signUp(signUpDto);
 
     expect(usersService.create).toHaveBeenCalledWith({
       ...signUpDto,
       role: 'user',
+      status: 'inactive',
     });
   });
 });

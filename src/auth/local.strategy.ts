@@ -3,6 +3,7 @@ import {
   Dependencies,
   Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
@@ -20,12 +21,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
-    const user = await this.authService.validateUser(email, password);
-    if (!user) {
-      throw new BadRequestException(
-        "Related user can't be found or invalid email/password.",
-      );
+    try {
+      await this.authService.validateUserAndUpdateLastLogin(email, password);
+    } catch (error) {
+      if (error.name === 'EmailNotVerified') {
+        throw new UnauthorizedException('Email does not verified yet.');
+      }
+      throw new BadRequestException(error.message);
     }
-    return user;
   }
 }

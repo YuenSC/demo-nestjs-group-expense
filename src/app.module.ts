@@ -1,3 +1,4 @@
+import { MailerModule } from '@nestjs-modules/mailer';
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -8,12 +9,16 @@ import { AuthModule } from './auth/auth.module';
 import authJwtConfig from './config/auth-jwt.config';
 import databaseConfig from './config/database.config';
 import envFilePath from './config/envFilePath';
+import mailerConfig from './config/mailer.config';
+import s3Config from './config/s3.config';
+import { ExpensesModule } from './expenses/expenses.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 import { GroupsModule } from './groups/groups.module';
 import { TransformInterceptor } from './transform.interceptor';
 import { UsersModule } from './users/users.module';
-import { FileUploadModule } from './file-upload/file-upload.module';
-import { ExpensesModule } from './expenses/expenses.module';
-import s3Config from './config/s3.config';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -21,6 +26,9 @@ import s3Config from './config/s3.config';
       isGlobal: true,
       load: [databaseConfig, authJwtConfig, s3Config],
       envFilePath: envFilePath,
+    }),
+    MailerModule.forRootAsync({
+      useFactory: mailerConfig,
     }),
     TypeOrmModule.forRootAsync({
       useFactory: databaseConfig,
@@ -30,6 +38,8 @@ import s3Config from './config/s3.config';
     GroupsModule,
     FileUploadModule,
     ExpensesModule,
+    MailModule,
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [
@@ -42,6 +52,7 @@ import s3Config from './config/s3.config';
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
     },
+    MailService,
   ],
 })
 export class AppModule {}

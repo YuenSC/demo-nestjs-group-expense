@@ -6,9 +6,15 @@ import { User } from './entities/user.entity';
 import { UserSubscriber } from './user.subscriber';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), FileUploadModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    FileUploadModule,
+    AuthModule,
+    OtpModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, UserSubscriber],
   exports: [UsersService],
