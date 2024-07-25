@@ -4,6 +4,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { render } from '@react-email/render';
 import GroupExpenseVerifyEmail from '../emails/GroupExpenseVerifyEmail';
+import { formatDuration, intervalToDuration } from 'date-fns';
 
 interface SendMailConfiguration {
   email: string;
@@ -21,26 +22,39 @@ export class MailService {
 
   async sendMail({ email, subject, template }: SendMailConfiguration) {
     const html = this.generateEmail(template);
-
     await this.mailerService.sendMail({
       from: process.env.MAIL_USER,
       to: email,
       subject,
       html,
     });
+
+    return {
+      message: 'Email sent successfully',
+    };
   }
 
-  async sendEmailValidation({
+  sendGroupExpenseVerifyEmail({
     email,
-    validationCode,
+    otp,
+    otpExpireInSecond,
   }: {
     email: string;
-    validationCode: string;
+    otp: string;
+    otpExpireInSecond: number;
   }) {
-    return await this.sendMail({
+    const duration = intervalToDuration({
+      start: 0,
+      end: otpExpireInSecond * 1000,
+    });
+
+    return this.sendMail({
       email,
       subject: '[Group Expense] Email Validation',
-      template: GroupExpenseVerifyEmail({ validationCode }),
+      template: GroupExpenseVerifyEmail({
+        validationCode: otp,
+        expiredPeriod: formatDuration(duration),
+      }),
     });
   }
 }

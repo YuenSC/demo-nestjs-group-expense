@@ -12,11 +12,13 @@ import {
 import * as React from 'react';
 
 interface IGroupExpenseVerifyEmailProps {
-  validationCode?: string;
+  validationCode: string;
+  expiredPeriod: string;
 }
 
 export const GroupExpenseVerifyEmail = ({
-  validationCode,
+  validationCode = '123456',
+  expiredPeriod = '5 minutes',
 }: IGroupExpenseVerifyEmailProps) => (
   <Html>
     <Head />
@@ -35,6 +37,7 @@ export const GroupExpenseVerifyEmail = ({
         </Heading>
         <Section style={codeContainer}>
           <Text style={code}>{validationCode}</Text>
+          <Text style={codeWarning}>Code expires in {expiredPeriod}</Text>
         </Section>
         <Text style={paragraph}>Not expecting this email?</Text>
         <Text style={paragraph}>
@@ -48,10 +51,6 @@ export const GroupExpenseVerifyEmail = ({
     </Body>
   </Html>
 );
-
-GroupExpenseVerifyEmail.PreviewProps = {
-  validationCode: '144833',
-} as IGroupExpenseVerifyEmailProps;
 
 export default GroupExpenseVerifyEmail;
 
@@ -106,10 +105,11 @@ const secondary = {
 const codeContainer = {
   background: 'rgba(0,0,0,.05)',
   borderRadius: '4px',
-  margin: '16px auto 14px',
+  margin: '16px auto 16px',
+  padding: '8px 0px',
   verticalAlign: 'middle',
   width: '280px',
-};
+} as React.CSSProperties;
 
 const code = {
   color: '#000',
@@ -119,12 +119,15 @@ const code = {
   fontWeight: 700,
   letterSpacing: '6px',
   lineHeight: '40px',
-  paddingBottom: '8px',
-  paddingTop: '8px',
   margin: '0 auto',
   width: '100%',
   textAlign: 'center' as const,
 };
+
+const codeWarning = {
+  margin: '0 auto',
+  textAlign: 'center' as const,
+} as React.CSSProperties;
 
 const paragraph = {
   color: '#444',

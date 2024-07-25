@@ -18,6 +18,7 @@ import { TransformInterceptor } from './transform.interceptor';
 import { UsersModule } from './users/users.module';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MailModule } from './mail/mail.module';
     FileUploadModule,
     ExpensesModule,
     MailModule,
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [

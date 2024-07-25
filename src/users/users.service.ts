@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { FileUploadService } from '../file-upload/file-upload.service';
+import { OtpService } from '../otp/otp.service';
 import { PaginationFilterDto } from '../pagination/pagination-filter.dto';
 import { PaginationService } from '../pagination/pagination.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,6 +26,7 @@ export class UsersService extends PaginationService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly fileUploadService: FileUploadService,
+    private readonly otpService: OtpService,
   ) {
     super();
   }
@@ -39,6 +41,7 @@ export class UsersService extends PaginationService {
         );
       }
     }
+    delete createUserDto.retypedPassword;
   }
 
   private async processProfilePicture(
@@ -61,22 +64,24 @@ export class UsersService extends PaginationService {
     if (password) {
       hashedPassword = await this.authService.hashPassword(password);
     }
-    return new User({ ...rest, password: hashedPassword, imageKey });
+
+    return new User({
+      ...rest,
+      otpSecret: this.otpService.generateOTPSecret(),
+      password: hashedPassword,
+      imageKey,
+    });
   }
 
   private async saveUser(user: User): Promise<User> {
     try {
       return await this.userRepository.save(user);
     } catch (error) {
-      this.handleSaveUserError(error);
+      if (error.code === '23505') {
+        throw new BadRequestException('User already exists');
+      }
+      throw new BadRequestException(error.code);
     }
-  }
-
-  private handleSaveUserError(error: any): never {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new BadRequestException('User already exists');
-    }
-    throw new BadRequestException(error.code);
   }
 
   // Public methods
@@ -112,10 +117,12 @@ export class UsersService extends PaginationService {
 
   async update(
     id: string,
-    updateUserDto: UpdateUserDto,
-    profilePicture: Express.Multer.File,
+    updateUserDto: UpdateUserDto & Partial<User>,
+    profilePicture?: Express.Multer.File,
   ) {
-    const imageKey = await this.processProfilePicture(profilePicture);
+    const imageKey = profilePicture
+      ? await this.processProfilePicture(profilePicture)
+      : undefined;
     const updateData = imageKey
       ? { ...updateUserDto, imageKey }
       : updateUserDto;

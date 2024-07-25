@@ -1,4 +1,8 @@
-import { User, UserRole } from '../../src/users/entities/user.entity';
+import {
+  User,
+  UserRole,
+  UserStatus,
+} from '../../src/users/entities/user.entity';
 
 export const createMockUser = (defaultUser?: Partial<User>) =>
   ({
@@ -16,5 +20,7 @@ export const createMockUser = (defaultUser?: Partial<User>) =>
     imageKey: 'image_key',
     imageUrl: 'image_url',
     transactions: [],
+    status: UserStatus.ACTIVE,
+    otpSecret: 'otp_secret',
     ...defaultUser,
   }) satisfies User;

@@ -2,13 +2,14 @@ import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UserRole } from '../users/entities/user.entity';
+import { UserRole, UserStatus } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { AuthGuardJwt } from './auth-guard.jwt';
 import { AuthGuardLocal } from './auth-guard.local';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
 import { SignUpDto } from './dto/signup.dto';
-import { AuthGuardJwt } from './auth-guard.jwt';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -47,19 +48,35 @@ export class AuthController {
   }
 
   @Post('sign-up')
-  async signUp(
-    @Body() signUpDto: SignUpDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async signUp(@Body() signUpDto: SignUpDto) {
     const createUserDto = {
       ...signUpDto,
       role: UserRole.USER,
+      status: UserStatus.INACTIVE,
     } satisfies CreateUserDto;
 
     const user = await this.usersService.create(createUserDto);
+    await this.authService.sendVerificationEmail(user);
+    return {
+      user,
+    };
+  }
+
+  @Post('resend-verification-email')
+  async resendVerificationEmail(@Body() { email }: { email: string }) {
+    return this.authService.resendVerificationEmail(email);
+  }
+
+  @Post('verify-email')
+  async verifyEmail(
+    @Body() { email, otp }: VerifyEmailDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const user = await this.authService.verifyEmail({ email, otp });
     const access_token = await this.setCookieAndGenerateToken(user, response);
 
     return {
+      message: 'Email verified successfully',
       user,
       access_token,
     };

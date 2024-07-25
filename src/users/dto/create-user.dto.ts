@@ -7,7 +7,7 @@ import {
   IsStrongPassword,
   Length,
 } from 'class-validator';
-import { UserRole } from '../entities/user.entity';
+import { UserRole, UserStatus } from '../entities/user.entity';
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
@@ -47,4 +47,8 @@ export class CreateUserDto {
   @IsOptional()
   @Transform(({ value }) => value === 'true') // Convert string to boolean due to the usage of form-data
   isOnboardingCompleted: boolean;
+
+  @IsEnum(UserStatus)
+  @IsOptional()
+  status?: UserStatus;
 }
