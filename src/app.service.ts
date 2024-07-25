@@ -1,10 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { GroupsService } from './groups/groups.service';
+import { UserRole, UserStatus } from './users/entities/user.entity';
+import { UsersService } from './users/users.service';
 
 @Injectable()
 export class AppService {
-  constructor() {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly groupsService: GroupsService,
+  ) {}
 
-  getHello(): string {
-    return 'Hello World!';
+  async resetAll(): Promise<any> {
+    if (process.env.NODE_ENV !== 'local') {
+      throw new BadRequestException(
+        'Reset all data is only allowed in local environment',
+      );
+    }
+
+    await Promise.all([
+      this.usersService.resetAll(),
+      this.groupsService.resetAll(),
+    ]);
+
+    await this.usersService.create({
+      email: 'c1@admin.com',
+      isOnboardingCompleted: false,
+      password: 'Example@001',
+      role: UserRole.ADMIN,
+      name: 'Calvin Admin 1',
+      retypedPassword: 'Example@001',
+      status: UserStatus.ACTIVE,
+    });
+    await this.usersService.create({
+      email: 'c1@user.com',
+      isOnboardingCompleted: false,
+      password: 'Example@001',
+      role: UserRole.USER,
+      name: 'Calvin User 1',
+      retypedPassword: 'Example@001',
+      status: UserStatus.ACTIVE,
+    });
+
+    return { message: 'All data reset successfully' };
   }
 }
