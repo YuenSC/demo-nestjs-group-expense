@@ -72,7 +72,7 @@ export class AuthService {
     return await this.sendVerificationEmail(user);
   }
 
-  async verifyEmail({ email, otp }: VerifyEmailDto) {
+  async verifyEmailAndUpdateLastLogin({ email, otp }: VerifyEmailDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) throw new BadRequestException('User not found');
     if (user.status === UserStatus.ACTIVE)
@@ -80,7 +80,10 @@ export class AuthService {
     if (!this.otpService.validateOTP(otp, user.otpSecret))
       throw new BadRequestException('Invalid OTP');
 
-    await this.usersService.update(user.id, { status: UserStatus.ACTIVE });
+    await this.usersService.update(user.id, {
+      status: UserStatus.ACTIVE,
+      lastLoginAt: new Date(),
+    });
     return user;
   }
 }

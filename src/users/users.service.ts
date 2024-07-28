@@ -78,7 +78,9 @@ export class UsersService extends PaginationService {
       return await this.userRepository.save(user);
     } catch (error) {
       if (error.code === '23505') {
-        throw new BadRequestException('User already exists');
+        throw new BadRequestException(
+          'User with the same email already exists',
+        );
       }
       throw new BadRequestException(error.code);
     }
