@@ -64,4 +64,11 @@ export class User extends BaseEntity<User> {
   @Column({ nullable: true })
   @Exclude({ toPlainOnly: true })
   otpSecret: string;
+
+  @Column({
+    nullable: true,
+    default: parseInt(process.env.OTP_RETRY_CHANCE) || 3,
+  })
+  @Exclude({ toPlainOnly: true })
+  otpRetryChanceLeft: number;
 }

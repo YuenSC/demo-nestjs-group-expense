@@ -69,6 +69,10 @@ export class AuthService {
     if (!user) throw new BadRequestException('User not found');
     if (user.status === UserStatus.ACTIVE)
       throw new BadRequestException('User already verified');
+
+    this.usersService.update(user.id, {
+      otpRetryChanceLeft: this.otpService.defaultOtpRetryChanceLeft,
+    });
     return await this.sendVerificationEmail(user);
   }
 
@@ -77,8 +81,22 @@ export class AuthService {
     if (!user) throw new BadRequestException('User not found');
     if (user.status === UserStatus.ACTIVE)
       throw new BadRequestException('User already verified');
-    if (!this.otpService.validateOTP(otp, user.otpSecret))
-      throw new BadRequestException('Invalid OTP');
+    if (user.otpRetryChanceLeft === 0) {
+      throw new BadRequestException(
+        'OTP retry chance exhausted. Please create a new OTP',
+      );
+    }
+    if (!this.otpService.validateOTP(otp, user.otpSecret)) {
+      const chanceLeft = user.otpRetryChanceLeft - 1;
+      this.usersService.update(user.id, {
+        otpRetryChanceLeft: chanceLeft,
+      });
+      throw new BadRequestException(
+        chanceLeft === 0
+          ? 'OTP retry chance exhausted. Please create a new OTP'
+          : `Invalid OTP. You can try ${chanceLeft} times more.`,
+      );
+    }
 
     await this.usersService.update(user.id, {
       status: UserStatus.ACTIVE,

@@ -68,6 +68,7 @@ export class UsersService extends PaginationService {
     return new User({
       ...rest,
       otpSecret: this.otpService.generateOTPSecret(),
+      otpRetryChanceLeft: this.otpService.defaultOtpRetryChanceLeft,
       password: hashedPassword,
       imageKey,
     });
