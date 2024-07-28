@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Expense } from './expense.entity';
+import { ColumnNumericTransformer } from '../../common/column-numeric.transformer';
 
 export enum TransactionType {
   PAYER = 'payer',
@@ -29,6 +30,7 @@ export class ExpenseTransaction extends BaseEntity<ExpenseTransaction> {
     type: 'decimal',
     precision: 10,
     scale: 2,
+    transformer: new ColumnNumericTransformer(),
   })
   amount: number | null;
 
