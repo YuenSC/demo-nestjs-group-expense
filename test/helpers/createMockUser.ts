@@ -22,5 +22,6 @@ export const createMockUser = (defaultUser?: Partial<User>) =>
     transactions: [],
     status: UserStatus.ACTIVE,
     otpSecret: 'otp_secret',
+    otpRetryChanceLeft: 3,
     ...defaultUser,
   }) satisfies User;

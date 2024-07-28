@@ -8,6 +8,8 @@ export class OtpService {
   // and verify the otp by the user
 
   public otpExpireInSecond = process.env.OTP_EXPIRE_IN_SECOND;
+  public defaultOtpRetryChanceLeft =
+    parseInt(process.env.OTP_RETRY_CHANCE) || 3;
 
   getOtpExpireInSecond() {
     const period = parseInt(process.env.OTP_EXPIRE_IN_SECOND, 10);
