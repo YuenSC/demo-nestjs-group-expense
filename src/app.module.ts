@@ -1,7 +1,7 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,14 +19,22 @@ import { UsersModule } from './users/users.module';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
 import { OtpModule } from './otp/otp.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, authJwtConfig, s3Config],
       envFilePath: envFilePath,
     }),
+
     MailerModule.forRootAsync({
       useFactory: mailerConfig,
     }),
@@ -43,6 +51,10 @@ import { OtpModule } from './otp/otp.module';
   ],
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     AppService,
     {
       provide: APP_INTERCEPTOR,

@@ -39,6 +39,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^6.0.0",
     "@nestjs/typeorm": "^10.0.2",
     "@react-email/components": "0.0.21",
     "@react-email/render": "^0.0.16",
