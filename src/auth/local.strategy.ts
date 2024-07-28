@@ -22,7 +22,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
   async validate(email: string, password: string) {
     try {
-      await this.authService.validateUserAndUpdateLastLogin(email, password);
+      const user = await this.authService.validateUserAndUpdateLastLogin(
+        email,
+        password,
+      );
+
+      return user;
     } catch (error) {
       if (error.name === 'EmailNotVerified') {
         throw new UnauthorizedException('Email does not verified yet.');

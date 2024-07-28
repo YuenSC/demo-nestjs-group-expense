@@ -72,7 +72,10 @@ export class AuthController {
     @Body() { email, otp }: VerifyEmailDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const user = await this.authService.verifyEmail({ email, otp });
+    const user = await this.authService.verifyEmailAndUpdateLastLogin({
+      email,
+      otp,
+    });
     const access_token = await this.setCookieAndGenerateToken(user, response);
 
     return {

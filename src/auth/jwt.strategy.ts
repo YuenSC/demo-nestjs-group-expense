@@ -9,6 +9,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '../users/users.service';
+import { UserStatus } from '../users/entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -36,9 +37,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     try {
-      return await this.usersService.findOne(payload.sub);
+      const user = await this.usersService.findOne(payload.sub);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+      if (user.status !== UserStatus.ACTIVE) {
+        throw new Error('User is not active');
+      }
+
+      return user;
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(error.message);
     }
   }
 }

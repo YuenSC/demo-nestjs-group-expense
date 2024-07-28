@@ -1,14 +1,12 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AuthGuardJwt } from './auth/auth-guard.jwt';
 
 @Controller()
-@UseGuards(AuthGuardJwt)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello() {
-    return this.appService.getHello();
+  @Post('reset-all-then-init')
+  resetAll() {
+    return this.appService.resetAll();
   }
 }
