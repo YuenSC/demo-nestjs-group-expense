@@ -179,8 +179,9 @@ export class UserGroupService extends PaginationService {
     }
 
     // 2. Cannot remove if the user is the last admin
+    const isDeleteUserAdmin = userGroup.isAdmin;
     const adminCount = usersGroups.filter((userGroup) => userGroup.isAdmin);
-    if (adminCount.length <= 1) {
+    if (isDeleteUserAdmin && adminCount.length <= 1) {
       throw new BadRequestException('Cannot remove the last admin');
     }
 
