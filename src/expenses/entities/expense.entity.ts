@@ -35,4 +35,7 @@ export class Expense extends BaseEntity<Expense> {
     },
   )
   transactions: ExpenseTransaction[];
+
+  @Column({ nullable: true })
+  category: string; // All Category are hardcoded in the frontend. Backend only store the category name for now.
 }
