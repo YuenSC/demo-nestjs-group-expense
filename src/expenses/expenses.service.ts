@@ -149,4 +149,67 @@ export class ExpensesService extends PaginationService {
     );
     return paymentRelationship;
   }
+
+  async getStatistics(groupId: string, userId: string) {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ['userGroups', 'userGroups.user'],
+    });
+    if (!group) throw new BadRequestException('Group not found');
+
+    const expenses = await this.expenseRepository.find({
+      where: { group: { id: groupId } },
+      relations: ['transactions', 'transactions.user'],
+    });
+
+    const expenseByCurrency = expenses.reduce(
+      (acc, expense) => ({
+        ...acc,
+        [expense.currencyCode]: [...(acc[expense.currencyCode] ?? []), expense],
+      }),
+      {} as Record<string, Expense[]>,
+    );
+
+    const categoryExpenseByCurrency = Object.fromEntries(
+      Object.entries(expenseByCurrency).map(([currencyCode, expenses]) => {
+        const sumOfExpensePerCategory = expenses.reduce(
+          (acc, expense) => {
+            const category = expense.category ?? 'Uncategorized';
+
+            return {
+              ...acc,
+              [category]: (acc[category] ?? 0) + expense.amount,
+            };
+          },
+          {} as Record<string, number>,
+        );
+
+        return [currencyCode, sumOfExpensePerCategory];
+      }),
+    );
+    const userCategoryExpenseByCurrency = Object.fromEntries(
+      Object.entries(expenseByCurrency).map(([currencyCode, expenses]) => {
+        const sumOfExpensePerCategory = expenses.reduce(
+          (acc, expense) => {
+            const { netAmount } = calculateUserNetTransactionAmount(
+              expense,
+              userId,
+            );
+            const category = expense.category ?? 'Uncategorized';
+            return {
+              ...acc,
+              [category]: (acc[category] ?? 0) + netAmount,
+            };
+          },
+          {} as Record<string, number>,
+        );
+        return [currencyCode, sumOfExpensePerCategory];
+      }),
+    );
+
+    return {
+      categoryExpenseByCurrency,
+      userCategoryExpenseByCurrency,
+    };
+  }
 }

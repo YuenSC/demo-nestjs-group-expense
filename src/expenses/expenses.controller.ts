@@ -17,13 +17,13 @@ import { ExpensePaginationFilterDto } from './dto/expense-pagination-filter.dto'
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpensesService } from './expenses.service';
 @UseGuards(AuthGuardJwt)
-@Controller('groups/:groupId/expenses')
+@Controller('groups/:groupId')
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
 
   @Post()
   create(
-    @UUIDParam('groupId') groupId: string,
+    @UUIDParam('expenses/groupId') groupId: string,
     @Body() createExpenseDto: CreateExpenseDto,
   ) {
     return this.expenseService.create(groupId, createExpenseDto);
@@ -31,18 +31,18 @@ export class ExpensesController {
 
   @Get('unresolved-amount-per-currency')
   getUnresolvedAmountPerCurrency(
-    @UUIDParam('groupId') groupId: string,
+    @UUIDParam('expenses/groupId') groupId: string,
     @CurrentUser() user: User,
   ) {
     return this.expenseService.getUnresolvedAmountPerCurrency(groupId, user.id);
   }
 
-  @Get('payment-relationship')
+  @Get('expenses/payment-relationship')
   getPaymentRelationship(@UUIDParam('groupId') groupId: string) {
     return this.expenseService.getPaymentRelationship(groupId);
   }
 
-  @Get()
+  @Get('expenses')
   findAll(
     @UUIDParam('groupId') groupId: string,
     @Query() paginationFilterDto: ExpensePaginationFilterDto,
@@ -50,12 +50,20 @@ export class ExpensesController {
     return this.expenseService.findAll(groupId, paginationFilterDto);
   }
 
-  @Get(':id')
+  @Get('statistics')
+  getStatistics(
+    @UUIDParam('groupId') groupId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.expenseService.getStatistics(groupId, user.id);
+  }
+
+  @Get('expenses/:id')
   findOne(@UUIDParam('id') id: string) {
     return this.expenseService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('expenses/:id')
   update(
     @UUIDParam('id') id: string,
     @Body() updateExpenseDto: UpdateExpenseDto,
@@ -63,7 +71,7 @@ export class ExpensesController {
     return this.expenseService.update(id, updateExpenseDto);
   }
 
-  @Delete(':id')
+  @Delete('expenses/:id')
   remove(@UUIDParam('id') id: string) {
     return this.expenseService.remove(id);
   }
