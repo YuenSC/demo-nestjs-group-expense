@@ -21,17 +21,17 @@ import { ExpensesService } from './expenses.service';
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
 
-  @Post()
+  @Post('expenses')
   create(
-    @UUIDParam('expenses/groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     @Body() createExpenseDto: CreateExpenseDto,
   ) {
     return this.expenseService.create(groupId, createExpenseDto);
   }
 
-  @Get('unresolved-amount-per-currency')
+  @Get('expenses/unresolved-amount-per-currency')
   getUnresolvedAmountPerCurrency(
-    @UUIDParam('expenses/groupId') groupId: string,
+    @UUIDParam('groupId') groupId: string,
     @CurrentUser() user: User,
   ) {
     return this.expenseService.getUnresolvedAmountPerCurrency(groupId, user.id);
