@@ -7,21 +7,21 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { TransformInterceptor } from './common/transform.interceptor';
 import authJwtConfig from './config/auth-jwt.config';
 import cacheConfig from './config/cache.config';
 import databaseConfig from './config/database.config';
 import envFilePath from './config/envFilePath';
 import mailerConfig from './config/mailer.config';
 import s3Config from './config/s3.config';
-import { ExpensesModule } from './expenses/expenses.module';
-import { FileUploadModule } from './file-upload/file-upload.module';
-import { GroupsModule } from './groups/groups.module';
-import { MailModule } from './mail/mail.module';
-import { MailService } from './mail/mail.service';
-import { OtpModule } from './otp/otp.module';
-import { TransformInterceptor } from './transform.interceptor';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ExpensesModule } from './modules/expenses/expenses.module';
+import { FileUploadModule } from './modules/file-upload/file-upload.module';
+import { GroupsModule } from './modules/groups/groups.module';
+import { MailModule } from './modules/mail/mail.module';
+import { MailService } from './modules/mail/mail.service';
+import { OtpModule } from './modules/otp/otp.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [

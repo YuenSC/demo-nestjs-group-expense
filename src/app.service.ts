@@ -1,8 +1,8 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { GroupsService } from './groups/groups.service';
-import { UserRole, UserStatus } from './users/entities/user.entity';
-import { UsersService } from './users/users.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { GroupsService } from './modules/groups/groups.service';
+import { UserRole, UserStatus } from './modules/users/entities/user.entity';
+import { UsersService } from './modules/users/users.service';
 
 @Injectable()
 export class AppService {
