@@ -3,7 +3,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { render } from '@react-email/render';
-import GroupExpenseVerifyEmail from '../emails/GroupExpenseVerifyEmail';
+import GroupExpenseVerifyEmail from '../../../emails/GroupExpenseVerifyEmail';
 import { formatDuration, intervalToDuration } from 'date-fns';
 
 interface SendMailConfiguration {

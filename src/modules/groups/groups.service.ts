@@ -34,6 +34,7 @@ export class GroupsService extends PaginationService {
       },
     );
   }
+
   async findAll(paginationFilterDto: PaginationFilterDto) {
     return await this.paginate(this.groupRepository, paginationFilterDto, {});
   }
