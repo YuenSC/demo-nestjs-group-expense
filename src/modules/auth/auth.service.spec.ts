@@ -67,10 +67,7 @@ describe('AuthService', () => {
     (usersService.findOneByEmail as jest.Mock).mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-    const result = await authService.validateUserAndUpdateLastLogin(
-      mockUser.email,
-      mockPassword,
-    );
+    const result = await authService.validateUser(mockUser.email, mockPassword);
 
     expect(result).toEqual(mockUser);
     expect(usersService.findOneByEmail).toHaveBeenCalledWith(mockUser.email);
@@ -78,7 +75,6 @@ describe('AuthService', () => {
       mockPassword,
       mockUser.password,
     );
-    expect(usersService.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
   });
 
   it('should hash password', async () => {

@@ -25,7 +25,7 @@ export class AuthService {
     private otpService: OtpService,
   ) {}
 
-  async validateUserAndUpdateLastLogin(email: string, password: string) {
+  async validateUser(email: string, password: string) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new Error('No user found with this email address.');
@@ -41,7 +41,6 @@ export class AuthService {
       throw new Error('Invalid password.');
     }
 
-    await this.usersService.updateLastLogin(user.id);
     return user;
   }
 
