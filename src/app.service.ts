@@ -1,13 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { GroupsService } from './groups/groups.service';
 import { UserRole, UserStatus } from './users/entities/user.entity';
 import { UsersService } from './users/users.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AppService {
   constructor(
     private readonly usersService: UsersService,
     private readonly groupsService: GroupsService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async resetAll(): Promise<any> {
@@ -42,5 +44,17 @@ export class AppService {
     });
 
     return { message: 'All data reset successfully' };
+  }
+
+  async showCache(): Promise<any> {
+    const keys = await this.cacheManager.store.keys();
+    const cacheEntries = {};
+
+    for (const key of keys) {
+      const value = await this.cacheManager.get(key);
+      cacheEntries[key] = value;
+    }
+
+    return cacheEntries;
   }
 }
