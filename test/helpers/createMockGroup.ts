@@ -1,4 +1,4 @@
-import { Group } from '../../src/groups/entities/group.entity';
+import { Group } from '../../src/modules/groups/entities/group.entity';
 
 export const createMockGroup = (defaultGroup?: Partial<Group>) =>
   ({

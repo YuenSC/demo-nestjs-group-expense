@@ -1,5 +1,5 @@
-import { Group } from '../../src/groups/entities/group.entity';
-import { UserGroup } from '../../src/groups/entities/user-group.entity';
+import { Group } from '../../src/modules/groups/entities/group.entity';
+import { UserGroup } from '../../src/modules/groups/entities/user-group.entity';
 import { createMockUser } from './createMockUser';
 
 const mockGroup = {

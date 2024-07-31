@@ -2,7 +2,7 @@ import {
   User,
   UserRole,
   UserStatus,
-} from '../../src/users/entities/user.entity';
+} from '../../src/modules/users/entities/user.entity';
 
 export const createMockUser = (defaultUser?: Partial<User>) =>
   ({
