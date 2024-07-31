@@ -72,9 +72,13 @@ export class AuthController {
     @Body() { email, otp }: VerifyEmailDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const user = await this.authService.verifyEmailAndUpdateLastLogin({
+    const user = await this.authService.verifyEmail({
       email,
       otp,
+    });
+    await this.usersService.update(user.id, {
+      status: UserStatus.ACTIVE,
+      lastLoginAt: new Date(),
     });
     const access_token = await this.setCookieAndGenerateToken(user, response);
 

@@ -75,7 +75,7 @@ export class AuthService {
     return await this.sendVerificationEmail(user);
   }
 
-  async verifyEmailAndUpdateLastLogin({ email, otp }: VerifyEmailDto) {
+  async verifyEmail({ email, otp }: VerifyEmailDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) throw new BadRequestException('User not found');
     if (user.status === UserStatus.ACTIVE)
@@ -97,10 +97,6 @@ export class AuthService {
       );
     }
 
-    await this.usersService.update(user.id, {
-      status: UserStatus.ACTIVE,
-      lastLoginAt: new Date(),
-    });
     return user;
   }
 }
