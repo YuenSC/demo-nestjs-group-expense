@@ -32,18 +32,6 @@ export class UsersService extends PaginationService {
   }
 
   // Helper methods
-  private validatePasswords(createUserDto: CreateUserDto) {
-    const { password, retypedPassword } = createUserDto;
-    if (password || retypedPassword) {
-      if (password !== retypedPassword) {
-        throw new BadRequestException(
-          'Password and retyped password do not match',
-        );
-      }
-    }
-    delete createUserDto.retypedPassword;
-  }
-
   private async processProfilePicture(
     profilePicture?: Express.Multer.File,
   ): Promise<string> {
@@ -92,7 +80,12 @@ export class UsersService extends PaginationService {
     createUserDto: CreateUserDto,
     profilePicture?: Express.Multer.File,
   ) {
-    this.validatePasswords(createUserDto);
+    const { password, retypedPassword } = createUserDto;
+    if (password !== retypedPassword)
+      throw new BadRequestException(
+        'Password and retyped password do not match',
+      );
+    delete createUserDto.retypedPassword;
 
     const imageKey = await this.processProfilePicture(profilePicture);
     const user = await this.createUserRecord(createUserDto, imageKey);
@@ -141,7 +134,6 @@ export class UsersService extends PaginationService {
       }
       return `User with id ${id} has been deleted`;
     } catch (error) {
-      console.log('error', error);
       if (error.code === '23503')
         throw new BadRequestException(
           'Please remove user from group before deleting user',
