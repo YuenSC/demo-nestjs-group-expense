@@ -92,5 +92,5 @@ export const generatePaymentRelationshipForOneCurrencyCode = (
     }
   });
 
-  return relationships;
+  return relationships.filter((r) => r.debtAmount > 0.01);
 };

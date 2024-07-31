@@ -101,18 +101,24 @@ export class ExpensesService extends PaginationService {
       relations: ['transactions', 'transactions.user'],
     });
 
-    return expenses.reduce(
+    const unresolvedAmounts = expenses.reduce(
       (acc, expense) => {
         const { netAmount, currencyCode } = calculateUserNetTransactionAmount(
           expense,
           userId,
         );
+
         return {
           ...acc,
           [expense.currencyCode]: (acc[currencyCode] ?? 0) + netAmount,
         };
       },
       {} as Record<string, number>,
+    );
+
+    // remove currency with amount smaller than 0.01
+    return Object.fromEntries(
+      Object.entries(unresolvedAmounts).filter(([, amount]) => amount > 0.01),
     );
   }
 
